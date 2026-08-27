@@ -1,18 +1,16 @@
 import streamlit as st
 
+
+#Page Configuration
 st.set_page_config(
     page_title = "BuildQuant",
-    page_icon = "🏗️"
+    page_icon = "🏗️",
+    layout="wide"
 )
 
 
+#Title
 st.title("🏗️ BuildQuant")
+st.title("Residential Quantity System")
 
-st.subheader("Residential Quantity Estimation System")
-
-st.write(
-    "BuildQaunt collects proposed dwelling infromation"
-    "and transforms it into construction quality estimates."
-)
-
-st.info("Day 1: BuildQuant project successfully started!")
+st.divider()
