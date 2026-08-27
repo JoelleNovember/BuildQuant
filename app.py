@@ -45,3 +45,53 @@ building_type = st.selectbox(
 st.divider()
 
 
+#BUILDING DIMENSIONS
+
+st.header("📐 Building Dimensions")
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    length = st.number_input(
+        "Length (m)",
+        min_value=0.0,
+        step=0.1
+    )
+
+with col2:
+    width = st.number_input(
+        "Width (m)",
+        min_value=0.0,
+        step=0.1
+    )
+
+with col3:
+    wall_height = st.number_input(
+        "Wall Height (m)",
+        min_value=0.0,
+        step=0.1
+    )
+
+st.divider()
+
+# DOORS AND WINDOWS
+
+st.header("🚪 Doors & Windows")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    number_of_doors = st.number_input(
+        "Number of Doors",
+        min_value=0,
+        step=1
+    )
+
+with col2:
+    number_of_windows = st.number_input(
+        "Number of Windows",
+        min_value=0,
+        step=1
+    )
+
+st.divider()
