@@ -95,3 +95,29 @@ with col2:
     )
 
 st.divider()
+
+
+# SAVE PROJECT
+if st.button("💾 Save Project", type="primary"):
+
+    st.success("Project information captured successfully!")
+
+    st.subheader("Project Summary")
+
+    st.write(f"**Project:** {project_name}")
+    st.write(f"**Project Number:** {project_number}")
+    st.write(f"**Location:** {location}")
+    st.write(f"**Building Type:** {building_type}")
+
+    st.subheader("Building Information")
+
+    st.write(f"**Length:** {length} m")
+    st.write(f"**Width:** {width} m")
+    st.write(f"**Wall Height:** {wall_height} m")
+
+    st.subheader("Openings")
+
+    st.write(f"**Doors:** {number_of_doors}")
+    st.write(f"**Windows:** {number_of_windows}")
+
+    
