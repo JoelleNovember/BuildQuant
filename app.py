@@ -119,5 +119,3 @@ if st.button("💾 Save Project", type="primary"):
 
     st.write(f"**Doors:** {number_of_doors}")
     st.write(f"**Windows:** {number_of_windows}")
-
-    
