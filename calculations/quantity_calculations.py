@@ -1,6 +1,6 @@
 #Calculate floor area 
 
-def calculate_flooor_area(length, width):
+def calculate_floor_area(length, width):
     """
     Calculate the floor area of a rectangular dwelling.
 
@@ -39,7 +39,7 @@ def calculate_opening_area(width, height, quantity):
     """
     return width * height * quantity
 
-def caluclate_net_wall_area(gross_wall_area, door_area, window_area):
+def calculate_net_wall_area(gross_wall_area, door_area, window_area):
     """
     Calculate the wall area after deducting doors and windows. 
     Formula: gross wall area - door area - window area
