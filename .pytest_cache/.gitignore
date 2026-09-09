@@ -1,0 +1,101 @@
+```gitignore
+# ==========================================
+# BuildQuant - Git Ignore
+# ==========================================
+
+# -----------------------------
+# Python
+# -----------------------------
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# -----------------------------
+# IDE / Editors
+# -----------------------------
+
+# VS Code
+.vscode/
+
+# IntelliJ IDEA
+.idea/
+
+# JetBrains
+*.iml
+
+# -----------------------------
+# Operating System
+# -----------------------------
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# -----------------------------
+# Build / Distribution
+# -----------------------------
+
+build/
+dist/
+*.egg-info/
+
+# -----------------------------
+# Local Database
+# -----------------------------
+
+# SQLite database files
+*.db
+*.sqlite
+*.sqlite3
+
+# -----------------------------
+# Generated Reports
+# -----------------------------
+
+# Generated PDF reports
+reports/generated/
+
+# Generated CSV/Excel exports
+data/exports/
+
+# -----------------------------
+# Environment / Secrets
+# -----------------------------
+
+.env
+.env.*
+!.env.example
+
+# -----------------------------
+# Logs
+# -----------------------------
+
+*.log
+
+# -----------------------------
+# Temporary Files
+# -----------------------------
+
+*.tmp
+*.temp
+*.bak
+```

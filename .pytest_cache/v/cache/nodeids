@@ -1,0 +1,8 @@
+[
+  "tests/test_quantity_calculations.py::test_door_area",
+  "tests/test_quantity_calculations.py::test_floor_area",
+  "tests/test_quantity_calculations.py::test_gross_wall_area",
+  "tests/test_quantity_calculations.py::test_net_wall_area",
+  "tests/test_quantity_calculations.py::test_perimeter",
+  "tests/test_quantity_calculations.py::test_window_area"
+]
