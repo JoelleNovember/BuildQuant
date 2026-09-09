@@ -5,7 +5,8 @@ from calculations.quantity_calculations import (
     calculate_perimeter,
     calculate_gross_wall_area,
     calculate_opening_area,
-    calculate_net_wall_area
+    calculate_net_wall_area,
+    calculate_quantity_with_waste
 )
 
 
@@ -144,6 +145,14 @@ if st.button("🧮 Calculate Quantities", type="primary"):
         window_area
     )
 
+    # Calculate floor tirle with 10% waste
+    title_quantity = calculate_quantity_with_waste(floor_area, 10)
+
+    # Calculate paint area with 5% waste
+    paint_area = calculate_quantity_with_waste(net_wall_area, 5)
+
+
+
     st.success("Quantities calculated successfully!")
 
     st.header("📊 Quantity Summary")
@@ -182,3 +191,13 @@ if st.button("🧮 Calculate Quantities", type="primary"):
 
     st.write( f"**Window Opening Area:** " 
                 f"{window_area:.2f} m²" )
+
+    st.write(f"**Floor Tiles:** "
+             f"{title_quantity:.2f} m² "
+             f"including 10% waste")
+
+
+    st.write(f"**Paint Area:** "
+             f"{paint_area:.2f} m²"
+             f" including 5% allowance")
+    
