@@ -4,7 +4,8 @@ from calculations.quantity_calculations import (
     calculate_perimeter,
     calculate_gross_wall_area,
     calculate_opening_area,
-    calculate_net_wall_area
+    calculate_net_wall_area,
+    calculate_quantity_with_waste
 )
 
 
@@ -42,4 +43,10 @@ def test_net_wall_area():
     result = calculate_net_wall_area(97.2, 11.34, 11.52)
 
     assert result == 74.34
+
+
+def test_quantity_with_waste():
+    result = calculate_quantity_with_waste(80, 10)
+
+    assert result == 88
 

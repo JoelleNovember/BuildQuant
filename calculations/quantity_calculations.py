@@ -45,3 +45,15 @@ def calculate_net_wall_area(gross_wall_area, door_area, window_area):
     Formula: gross wall area - door area - window area
     """
     return gross_wall_area - door_area - window_area 
+
+
+def calculate_quantity_with_waste(quantity, waste_percentage):
+    """
+    Add a waste allowance to a quantity.
+
+    Example:
+    80 m² with 10% waste = 88 m²
+    """
+    waste_factor = 1 +( waste_percentage / 100)
+
+    return quantity * waste_factor
