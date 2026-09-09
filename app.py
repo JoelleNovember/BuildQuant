@@ -1,5 +1,14 @@
 import streamlit as st
 
+from calculations.quantity_calculations import (
+    calculate_floor_area,
+    calculate_perimeter,
+    calculate_gross_wall_area,
+    calculate_opening_area,
+    calculate_net_wall_area
+)
+
+
 
 #Page Configuration
 st.set_page_config(
@@ -98,24 +107,78 @@ st.divider()
 
 
 # SAVE PROJECT
-if st.button("💾 Save Project", type="primary"):
+#-----
+# CALCULATE QUANTITIES
+#-----
 
-    st.success("Project information captured successfully!")
 
-    st.subheader("Project Summary")
+if st.button("🧮 Calculate Quantities", type="primary"):
 
-    st.write(f"**Project:** {project_name}")
-    st.write(f"**Project Number:** {project_number}")
-    st.write(f"**Location:** {location}")
-    st.write(f"**Building Type:** {building_type}")
+    #Calulate floor area 
+    floor_area = calculate_floor_area(length, width)
 
-    st.subheader("Building Information")
+    #Calculate perimeter
+    perimeter = calculate_perimeter(length, width)
 
-    st.write(f"**Length:** {length} m")
-    st.write(f"**Width:** {width} m")
-    st.write(f"**Wall Height:** {wall_height} m")
+    #Calculate gross wall area 
+    gross_wall_area = calculate_gross_wall_area(perimeter, wall_height)
 
-    st.subheader("Openings")
+    # Standard door size
+    door_area = calculate_opening_area(
+        0.9,
+        2.1,
+        number_of_doors
+    )
 
-    st.write(f"**Doors:** {number_of_doors}")
-    st.write(f"**Windows:** {number_of_windows}")
+    # Standard window size
+    window_area = calculate_opening_area(
+        1.2,
+        1.2,
+        number_of_windows
+    )
+
+    # Calculate net wall area
+    net_wall_area = calculate_net_wall_area(
+        gross_wall_area,
+        door_area,
+        window_area
+    )
+
+    st.success("Quantities calculated successfully!")
+
+    st.header("📊 Quantity Summary")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric(
+            "Floor Area",
+            f"{floor_area:.2f} m"
+        )
+
+    with col2:
+        st.metric(
+            "Perimeter",
+            f"{perimeter:.2f} m"
+        )
+
+    with col3:
+        st.metric(
+            "Net Wall Area",
+            f"{net_wall_area:.2f} m² "
+        )
+
+
+
+    st.divider() 
+
+    st.subheader("Detailed Quantities") 
+
+    st.write( f"**Gross Wall Area:** " 
+              f"{gross_wall_area:.2f} m²" ) 
+
+    st.write( f"**Door Opening Area:** " 
+              f"{door_area:.2f} m²" ) 
+
+    st.write( f"**Window Opening Area:** " 
+                f"{window_area:.2f} m²" )
