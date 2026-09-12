@@ -12,7 +12,7 @@ def validate_positive_number(value, field_name):
 
 def validate_non_negative_number(value, field_name):
     """
-    Check that a number is zero or greater
+    Check that a numberis zero or greater
 
     """
     if value < 0:

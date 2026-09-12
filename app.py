@@ -1,5 +1,10 @@
 import streamlit as st
 
+from database.database import (
+    create_tables,
+    save_project
+)
+
 from calculations.quantity_calculations import (
     calculate_floor_area,
     calculate_perimeter,
@@ -10,52 +15,69 @@ from calculations.quantity_calculations import (
 )
 
 
+# ---------------------------------------------------------
+# PAGE CONFIGURATION
+# ---------------------------------------------------------
 
-#Page Configuration
 st.set_page_config(
-    page_title = "BuildQuant",
-    page_icon = "🏗️",
+    page_title="BuildQuant",
+    page_icon="🏗️",
     layout="wide"
 )
 
 
-#Title
+# ---------------------------------------------------------
+# DATABASE INITIALIZATION
+# ---------------------------------------------------------
+
+create_tables()
+
+
+# ---------------------------------------------------------
+# TITLE
+# ---------------------------------------------------------
+
 st.title("🏗️ BuildQuant")
 st.title("Residential Quantity System")
 
 st.divider()
 
 
-#PROJECT INFORMATION
+# ---------------------------------------------------------
+# PROJECT INFORMATION
+# ---------------------------------------------------------
+
 st.header("📋 Project Information")
 
 project_name = st.text_input(
     "Project Name",
-    placeholder="e.g Doe Residence"
+    placeholder="e.g. Doe Residence"
 )
 
 project_number = st.text_input(
     "Project Number",
-    placeholder="e.g PRJ_001"
+    placeholder="e.g. PRJ_001"
 )
 
 location = st.text_input(
     "Location",
-    placeholder="e.g Cape Town"
+    placeholder="e.g. Cape Town"
 )
 
 building_type = st.selectbox(
     "Building Type",
     [
         "Single-storey dwelling",
-        "Double-storey dewlling"
+        "Double-storey dwelling"
     ]
 )
 
 st.divider()
 
 
-#BUILDING DIMENSIONS
+# ---------------------------------------------------------
+# BUILDING DIMENSIONS
+# ---------------------------------------------------------
 
 st.header("📐 Building Dimensions")
 
@@ -84,7 +106,10 @@ with col3:
 
 st.divider()
 
+
+# ---------------------------------------------------------
 # DOORS AND WINDOWS
+# ---------------------------------------------------------
 
 st.header("🚪 Doors & Windows")
 
@@ -107,53 +132,127 @@ with col2:
 st.divider()
 
 
-# SAVE PROJECT
-#-----
+# ---------------------------------------------------------
 # CALCULATE QUANTITIES
-#-----
-
+# ---------------------------------------------------------
 
 if st.button("🧮 Calculate Quantities", type="primary"):
 
-    #Calulate floor area 
-    floor_area = calculate_floor_area(length, width)
+    # -----------------------------------------------------
+    # Calculate Floor Area
+    # -----------------------------------------------------
 
-    #Calculate perimeter
-    perimeter = calculate_perimeter(length, width)
+    floor_area = calculate_floor_area(
+        length,
+        width
+    )
 
-    #Calculate gross wall area 
-    gross_wall_area = calculate_gross_wall_area(perimeter, wall_height)
 
-    # Standard door size
+    # -----------------------------------------------------
+    # Calculate Perimeter
+    # -----------------------------------------------------
+
+    perimeter = calculate_perimeter(
+        length,
+        width
+    )
+
+
+    # -----------------------------------------------------
+    # Calculate Gross Wall Area
+    # -----------------------------------------------------
+
+    gross_wall_area = calculate_gross_wall_area(
+        perimeter,
+        wall_height
+    )
+
+
+    # -----------------------------------------------------
+    # Calculate Door Opening Area
+    # Standard door size: 0.9m x 2.1m
+    # -----------------------------------------------------
+
     door_area = calculate_opening_area(
         0.9,
         2.1,
         number_of_doors
     )
 
-    # Standard window size
+
+    # -----------------------------------------------------
+    # Calculate Window Opening Area
+    # Standard window size: 1.2m x 1.2m
+    # -----------------------------------------------------
+
     window_area = calculate_opening_area(
         1.2,
         1.2,
         number_of_windows
     )
 
-    # Calculate net wall area
+
+    # -----------------------------------------------------
+    # Calculate Net Wall Area
+    # -----------------------------------------------------
+
     net_wall_area = calculate_net_wall_area(
         gross_wall_area,
         door_area,
         window_area
     )
 
-    # Calculate floor tirle with 10% waste
-    title_quantity = calculate_quantity_with_waste(floor_area, 10)
 
-    # Calculate paint area with 5% waste
-    paint_area = calculate_quantity_with_waste(net_wall_area, 5)
+    # -----------------------------------------------------
+    # Calculate Floor Tile Quantity
+    # 10% waste allowance
+    # -----------------------------------------------------
+
+    tile_quantity = calculate_quantity_with_waste(
+        floor_area,
+        10
+    )
 
 
+    # -----------------------------------------------------
+    # Calculate Paint Area
+    # 5% allowance
+    # -----------------------------------------------------
 
-    st.success("Quantities calculated successfully!")
+    paint_area = calculate_quantity_with_waste(
+        net_wall_area,
+        5
+    )
+
+
+    # -----------------------------------------------------
+    # SAVE PROJECT
+    # -----------------------------------------------------
+
+    save_project(
+        project_name,
+        project_number,
+        location,
+        building_type,
+        length,
+        width,
+        wall_height,
+        number_of_doors,
+        number_of_windows,
+        floor_area,
+        perimeter,
+        gross_wall_area,
+        door_area,
+        window_area,
+        net_wall_area
+    )
+
+    st.success("Project saved successfully!")
+
+
+    # -----------------------------------------------------
+    # QUANTITY SUMMARY
+    # -----------------------------------------------------
 
     st.header("📊 Quantity Summary")
 
@@ -162,7 +261,7 @@ if st.button("🧮 Calculate Quantities", type="primary"):
     with col1:
         st.metric(
             "Floor Area",
-            f"{floor_area:.2f} m"
+            f"{floor_area:.2f} m²"
         )
 
     with col2:
@@ -174,30 +273,41 @@ if st.button("🧮 Calculate Quantities", type="primary"):
     with col3:
         st.metric(
             "Net Wall Area",
-            f"{net_wall_area:.2f} m² "
+            f"{net_wall_area:.2f} m²"
         )
 
 
+    # -----------------------------------------------------
+    # DETAILED QUANTITIES
+    # -----------------------------------------------------
 
-    st.divider() 
+    st.divider()
 
-    st.subheader("Detailed Quantities") 
+    st.subheader("Detailed Quantities")
 
-    st.write( f"**Gross Wall Area:** " 
-              f"{gross_wall_area:.2f} m²" ) 
+    st.write(
+        f"**Gross Wall Area:** "
+        f"{gross_wall_area:.2f} m²"
+    )
 
-    st.write( f"**Door Opening Area:** " 
-              f"{door_area:.2f} m²" ) 
+    st.write(
+        f"**Door Opening Area:** "
+        f"{door_area:.2f} m²"
+    )
 
-    st.write( f"**Window Opening Area:** " 
-                f"{window_area:.2f} m²" )
+    st.write(
+        f"**Window Opening Area:** "
+        f"{window_area:.2f} m²"
+    )
 
-    st.write(f"**Floor Tiles:** "
-             f"{title_quantity:.2f} m² "
-             f"including 10% waste")
+    st.write(
+        f"**Floor Tiles:** "
+        f"{tile_quantity:.2f} m² "
+        f"including 10% waste"
+    )
 
-
-    st.write(f"**Paint Area:** "
-             f"{paint_area:.2f} m²"
-             f" including 5% allowance")
-    
+    st.write(
+        f"**Paint Area:** "
+        f"{paint_area:.2f} m² "
+        f"including 5% allowance"
+    )
