@@ -125,3 +125,26 @@ def get_projects():
     connection.close()
 
     return projects
+
+
+def get_projects():
+    """
+    Retrieve all saved projects from the database.
+    """
+
+    connection = get_connection()
+
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM projects
+        ORDER BY id DESC
+    """)
+
+    projects = cursor.fetchall()
+
+    connection.close()
+
+    return projects
+

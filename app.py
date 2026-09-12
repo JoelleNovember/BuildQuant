@@ -1,8 +1,11 @@
 import streamlit as st
+import pandas as pd
+
 
 from database.database import (
     create_tables,
-    save_project
+    save_project,
+    get_projects
 )
 
 from calculations.quantity_calculations import (
@@ -311,3 +314,76 @@ if st.button("🧮 Calculate Quantities", type="primary"):
         f"{paint_area:.2f} m² "
         f"including 5% allowance"
     )
+
+# ---------------------------------------------------------
+# BUILDQUANT DASHBOARD
+# Display saved projects and project statistics
+# ---------------------------------------------------------
+
+st.divider()
+
+st.header("📊 BuildQuant Dashboard")
+
+projects = get_projects()
+
+if projects:
+
+    columns = [
+        "ID",
+        "Project Name",
+        "Project Number",
+        "Location",
+        "Building Type",
+        "Length",
+        "Width",
+        "Wall Height",
+        "Doors",
+        "Windows",
+        "Floor Area",
+        "Perimeter",
+        "Gross Wall Area",
+        "Door Area",
+        "Window Area",
+        "Net Wall Area"
+    ]
+
+    df = pd.DataFrame(
+        projects,
+        columns=columns
+    )
+
+    st.subheader("Saved Projects")
+
+    st.dataframe(
+        df,
+        use_container_width=True
+    )
+
+    st.subheader("Project Statistics")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.metric(
+            "Total Projects",
+            len(df)
+        )
+
+    with col2:
+        st.metric(
+            "Average Floor Area",
+            f"{df['Floor Area'].mean():.2f} m²"
+        )
+
+    with col3:
+        st.metric(
+            "Average Wall Area",
+            f"{df['Net Wall Area'].mean():.2f} m²"
+        )
+
+else:
+
+    st.info(
+        "No projects have been saved yet."
+    )
+
