@@ -22,6 +22,8 @@ from calculations.cost_calculations import(
     calculate_total_cost
 )
 
+from calculations.material_api import get_material_price
+
 
 # ---------------------------------------------------------
 # PAGE CONFIGURATION
@@ -232,33 +234,36 @@ if st.button("🧮 Calculate Quantities", type="primary"):
         5
     )
 
+    # -----------------------------------------------------
+    # Get Material Rates from REST API
+    # -----------------------------------------------------
+
+    tile_data = get_material_price("tiles")
+    tile_rate = tile_data["rate"]
+
+    paint_data = get_material_price("paint")
+    paint_rate = paint_data["rate"]
+
 
     # -----------------------------------------------------
-    # Calculate Cost Calculations
+    # Calculate Material Costs
     # -----------------------------------------------------
 
-    material_rates = {
-        "Floor tiles": 350,
-        "Paint": 120
-    }
-
-    tile_rate = material_rates["Floor tiles"]
     tile_cost = calculate_material_cost(
         tile_quantity,
         tile_rate
-        )
-
-    paint_rate = material_rates["Paint"]
+    )
 
     paint_cost = calculate_material_cost(
         paint_area,
         paint_rate
-        )
+    )
 
     total_cost = calculate_total_cost([
         tile_cost,
         paint_cost
-        ])
+    ])
+
 
 
 
