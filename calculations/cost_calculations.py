@@ -9,7 +9,7 @@ def calculate_material_cost(quantity, rate):
     return quantity * rate
 
 
- def calculate_total_cost(material_costs):
+def calculate_total_cost(material_costs):
     """
     Calculate the total esitmate cost.
 

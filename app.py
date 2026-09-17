@@ -5,7 +5,7 @@ import pandas as pd
 from database.database import (
     create_tables,
     save_project,
-    get_projects
+    get_projects,
 )
 
 from calculations.quantity_calculations import (
@@ -15,6 +15,11 @@ from calculations.quantity_calculations import (
     calculate_opening_area,
     calculate_net_wall_area,
     calculate_quantity_with_waste
+)
+
+from calculations.cost_calculations import(
+    calculate_material_cost,
+    calculate_total_cost
 )
 
 
@@ -229,6 +234,36 @@ if st.button("🧮 Calculate Quantities", type="primary"):
 
 
     # -----------------------------------------------------
+    # Calculate Cost Calculations
+    # -----------------------------------------------------
+
+    material_rates = {
+        "Floor tiles": 350,
+        "Paint": 120
+    }
+
+    tile_rate = material_rates["Floor tiles"]
+    tile_cost = calculate_material_cost(
+        tile_quantity,
+        tile_rate
+        )
+
+    paint_rate = material_rates["Paint"]
+
+    paint_cost = calculate_material_cost(
+        paint_area,
+        paint_rate
+        )
+
+    total_cost = calculate_total_cost([
+        tile_cost,
+        paint_cost
+        ])
+
+
+
+
+    # -----------------------------------------------------
     # SAVE PROJECT
     # -----------------------------------------------------
 
@@ -314,6 +349,24 @@ if st.button("🧮 Calculate Quantities", type="primary"):
         f"{paint_area:.2f} m² "
         f"including 5% allowance"
     )
+
+    st.subheader("💰 Cost Estimate")
+
+    st.write(
+        f"**Floor Tiles:** "
+        f"R{tile_cost:,.2f}"
+    )
+
+    st.write(
+        f"**Paint:** "
+        f"R{paint_cost:,.2f}"
+    )
+
+    st.metric(
+        "Estimated Total",
+        f"R{total_cost:,.2f}"
+    )
+
 
 # ---------------------------------------------------------
 # BUILDQUANT DASHBOARD
