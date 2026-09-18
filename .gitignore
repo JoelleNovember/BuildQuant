@@ -41,3 +41,5 @@ eggs/
 .eggs/
 *.egg-info/
 *.egg
+
+reports/generated/
