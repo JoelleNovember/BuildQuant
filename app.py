@@ -201,35 +201,491 @@ if st.session_state.get("calc_done"):
                 mime="application/pdf"
             )
 
+
+
 # ---------------------------------------------------------
-# BUILDQUANT DASHBOARD
+# BUILDQUANT GREEN DASHBOARD
 # ---------------------------------------------------------
 
 st.divider()
-st.header("📊 BuildQuant Dashboard")
+
+# ---------------------------------------------------------
+# DASHBOARD STYLING
+# ---------------------------------------------------------
+
+st.markdown("""
+<style>
+
+.buildquant-header {
+    background: linear-gradient(135deg, #0F5132, #198754);
+    padding: 30px;
+    border-radius: 18px;
+    color: white;
+    margin-bottom: 25px;
+}
+
+.buildquant-header h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+.buildquant-header p {
+    margin-top: 8px;
+    font-size: 16px;
+}
+
+.kpi-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 16px;
+    border-left: 5px solid #198754;
+    box-shadow: 0px 4px 14px rgba(0,0,0,0.08);
+    min-height: 120px;
+}
+
+.kpi-title {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.kpi-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #0F5132;
+}
+
+.kpi-description {
+    font-size: 13px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.section-title {
+    color: #0F5132;
+    font-size: 22px;
+    font-weight: bold;
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+.info-card {
+    background-color: #F1F8F4;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid #D8EBDD;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# ---------------------------------------------------------
+# DASHBOARD HEADER
+# ---------------------------------------------------------
+
+st.markdown("""
+<div class="buildquant-header">
+
+<h1>🏗️ BUILDQUANT</h1>
+
+<p>
+Residential Quantity Estimation & Data Engineering Dashboard
+</p>
+
+</div>
+""", unsafe_allow_html=True)
+
+
+# ---------------------------------------------------------
+# LOAD PROJECT DATA
+# ---------------------------------------------------------
 
 projects = get_projects()
 
+
 if projects:
+
     columns = [
-        "ID", "Project Name", "Project Number", "Location", "Building Type",
-        "Length", "Width", "Wall Height", "Doors", "Windows", "Floor Area",
-        "Perimeter", "Gross Wall Area", "Door Area", "Window Area", "Net Wall Area"
+        "ID",
+        "Project Name",
+        "Project Number",
+        "Location",
+        "Building Type",
+        "Length",
+        "Width",
+        "Wall Height",
+        "Doors",
+        "Windows",
+        "Floor Area",
+        "Perimeter",
+        "Gross Wall Area",
+        "Door Area",
+        "Window Area",
+        "Net Wall Area"
     ]
 
-    df = pd.DataFrame(projects, columns=columns)
+    df = pd.DataFrame(
+        projects,
+        columns=columns
+    )
 
-    st.subheader("Saved Projects")
-    st.dataframe(df, use_container_width=True)
 
-    st.subheader("Project Statistics")
-    col1, col2, col3 = st.columns(3)
+    # -----------------------------------------------------
+    # KPI CALCULATIONS
+    # -----------------------------------------------------
+
+    total_projects = len(df)
+
+    average_floor_area = df["Floor Area"].mean()
+
+    average_wall_area = df["Net Wall Area"].mean()
+
+    building_types = df["Building Type"].nunique()
+
+
+    # -----------------------------------------------------
+    # KPI CARDS
+    # -----------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">📊 Project Overview</div>',
+        unsafe_allow_html=True
+    )
+
+    col1, col2, col3, col4 = st.columns(4)
+
+
     with col1:
-        st.metric("Total Projects", len(df))
+
+        st.markdown(f"""
+        <div class="kpi-card">
+
+        <div class="kpi-title">
+        🏗️ TOTAL PROJECTS
+        </div>
+
+        <div class="kpi-value">
+        {total_projects}
+        </div>
+
+        <div class="kpi-description">
+        Saved projects
+        </div>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+
     with col2:
-        st.metric("Average Floor Area", f"{df['Floor Area'].mean():.2f} m²")
+
+        st.markdown(f"""
+        <div class="kpi-card">
+
+        <div class="kpi-title">
+        📐 AVG FLOOR AREA
+        </div>
+
+        <div class="kpi-value">
+        {average_floor_area:.2f} m²
+        </div>
+
+        <div class="kpi-description">
+        Average project size
+        </div>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+
     with col3:
-        st.metric("Average Wall Area", f"{df['Net Wall Area'].mean():.2f} m²")
+
+        st.markdown(f"""
+        <div class="kpi-card">
+
+        <div class="kpi-title">
+        🧱 AVG WALL AREA
+        </div>
+
+        <div class="kpi-value">
+        {average_wall_area:.2f} m²
+        </div>
+
+        <div class="kpi-description">
+        Average net wall area
+        </div>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+
+    with col4:
+
+        st.markdown(f"""
+        <div class="kpi-card">
+
+        <div class="kpi-title">
+        🏠 BUILDING TYPES
+        </div>
+
+        <div class="kpi-value">
+        {building_types}
+        </div>
+
+        <div class="kpi-description">
+        Types currently recorded
+        </div>
+
+        </div>
+        """, unsafe_allow_html=True)
+
+
+    # -----------------------------------------------------
+    # CURRENT PROJECT COST
+    # -----------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">💰 Current Estimate</div>',
+        unsafe_allow_html=True
+    )
+
+
+    if st.session_state.get("calc_done"):
+
+        data = st.session_state["calc_data"]
+
+        col1, col2, col3 = st.columns(3)
+
+
+        with col1:
+
+            st.markdown(f"""
+            <div class="info-card">
+
+            <b>Floor Tiles</b>
+
+            <h2>R{data['tile_cost']:,.2f}</h2>
+
+            <p>
+            {data['tile_quantity']:.2f} m²
+            </p>
+
+            </div>
+            """, unsafe_allow_html=True)
+
+
+        with col2:
+
+            st.markdown(f"""
+            <div class="info-card">
+
+            <b>Paint</b>
+
+            <h2>R{data['paint_cost']:,.2f}</h2>
+
+            <p>
+            {data['paint_area']:.2f} m²
+            </p>
+
+            </div>
+            """, unsafe_allow_html=True)
+
+
+        with col3:
+
+            st.markdown(f"""
+            <div class="info-card">
+
+            <b>Estimated Total</b>
+
+            <h2>R{data['total_cost']:,.2f}</h2>
+
+            <p>
+            Current project estimate
+            </p>
+
+            </div>
+            """, unsafe_allow_html=True)
+
+
+    else:
+
+        st.info(
+            "Calculate a project above to display its cost estimate here."
+        )
+
+
+    # -----------------------------------------------------
+    # QUANTITY ANALYTICS
+    # -----------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">📈 Quantity Analytics</div>',
+        unsafe_allow_html=True
+    )
+
+
+    col1, col2 = st.columns(2)
+
+
+    with col1:
+
+        st.write("### 📐 Floor Area by Project")
+
+        floor_chart = (
+            df[["Project Name", "Floor Area"]]
+            .set_index("Project Name")
+        )
+
+        st.bar_chart(
+            floor_chart,
+            color="#198754"
+        )
+
+
+    with col2:
+
+        st.write("### 🧱 Net Wall Area by Project")
+
+        wall_chart = (
+            df[["Project Name", "Net Wall Area"]]
+            .set_index("Project Name")
+        )
+
+        st.bar_chart(
+            wall_chart,
+            color="#0F5132"
+        )
+
+
+    # -----------------------------------------------------
+    # CURRENT PROJECT COST BREAKDOWN
+    # -----------------------------------------------------
+
+    if st.session_state.get("calc_done"):
+
+        data = st.session_state["calc_data"]
+
+        st.markdown(
+            '<div class="section-title">💵 Cost Breakdown</div>',
+            unsafe_allow_html=True
+        )
+
+
+        cost_data = pd.DataFrame({
+            "Material": [
+                "Floor Tiles",
+                "Paint"
+            ],
+
+            "Cost": [
+                data["tile_cost"],
+                data["paint_cost"]
+            ]
+        })
+
+
+        cost_chart = (
+            cost_data
+            .set_index("Material")
+        )
+
+
+        st.bar_chart(
+            cost_chart,
+            color="#198754"
+        )
+
+
+    # -----------------------------------------------------
+    # RECENT PROJECTS
+    # -----------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">📋 Saved Projects</div>',
+        unsafe_allow_html=True
+    )
+
+
+    display_columns = [
+        "Project Name",
+        "Project Number",
+        "Location",
+        "Building Type",
+        "Floor Area",
+        "Net Wall Area"
+    ]
+
+
+    st.dataframe(
+        df[display_columns],
+        use_container_width=True,
+        hide_index=True
+    )
+
+
+    # -----------------------------------------------------
+    # DATA ENGINEERING INFORMATION
+    # -----------------------------------------------------
+
+    st.markdown(
+        '<div class="section-title">🔌 BuildQuant Data Pipeline</div>',
+        unsafe_allow_html=True
+    )
+
+
+    st.markdown("""
+    <div class="info-card">
+
+    <b>Current pipeline:</b>
+
+    <br><br>
+
+    👤 User Input
+    →
+    📋 Data Collection
+    →
+    ✅ Validation
+    →
+    🧮 Quantity Calculations
+    →
+    💾 SQLite Database
+    →
+    📊 Dashboard
+    →
+    📄 PDF Report
+
+    <br><br>
+
+    <b>Systems Integration:</b>
+
+    BuildQuant retrieves material rates from the
+    Material Price REST API and uses those rates
+    to calculate estimated material costs.
+
+    </div>
+    """, unsafe_allow_html=True)
+
 
 else:
-    st.info("No projects have been saved yet.")
+
+    # -----------------------------------------------------
+    # EMPTY DASHBOARD
+    # -----------------------------------------------------
+
+    st.markdown("""
+    <div class="info-card">
+
+    <h2>👋 Welcome to BuildQuant</h2>
+
+    <p>
+    No projects have been saved yet.
+    </p>
+
+    <p>
+    Enter a residential project above and click
+    <b>Calculate Quantities</b> to create your first project.
+    </p>
+
+    </div>
+    """, unsafe_allow_html=True)
