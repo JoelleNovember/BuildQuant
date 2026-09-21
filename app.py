@@ -2,6 +2,10 @@ import os
 import streamlit as st
 import pandas as pd
 
+# ---------------------------------------------------------
+# IMPORT DEPENDENCIES
+# ---------------------------------------------------------
+
 from database.database import (
     create_tables,
     save_project,
@@ -33,14 +37,14 @@ from reports.generate_report import generate_report
 st.set_page_config(
     page_title="BuildQuant",
     page_icon="🏗️",
-    layout="wide"
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
 create_tables()
 
 # ---------------------------------------------------------
-# BUILDQUANT SIDEBAR
+# BUILDQUANT SIDEBAR NAVIGATION
 # ---------------------------------------------------------
 
 st.sidebar.markdown("""
@@ -79,29 +83,6 @@ st.sidebar.caption(
     "BuildQuant • Educational Prototype"
 )
 
-# ---------------------------------------------------------
-# TITLE
-# ---------------------------------------------------------
-
-st.title("🏗️ BuildQuant")
-st.write("**Residential Quantity System**")
-st.divider()
-
-# ---------------------------------------------------------
-# PROJECT INFORMATION
-# ---------------------------------------------------------
-
-st.header("📋 Project Information")
-
-project_name = st.text_input("Project Name", placeholder="e.g. Doe Residence")
-project_number = st.text_input("Project Number", placeholder="e.g. PRJ_001")
-location = st.text_input("Location", placeholder="e.g. Cape Town")
-building_type = st.selectbox(
-    "Building Type",
-    ["Single-storey dwelling", "Double-storey dwelling"]
-)
-
-st.divider()
 
 # ---------------------------------------------------------
 # BUILDING DIMENSIONS & OPENINGS
@@ -128,127 +109,558 @@ with col2:
 st.divider()
 
 # ---------------------------------------------------------
-# CALCULATE QUANTITIES
+# NEW PROJECT PAGE
 # ---------------------------------------------------------
 
-if st.button("🧮 Calculate Quantities", type="primary"):
+if page == "📋 New Project":
 
-    floor_area = calculate_floor_area(length, width)
-    perimeter = calculate_perimeter(length, width)
-    gross_wall_area = calculate_gross_wall_area(perimeter, wall_height)
+    st.title("📋 New Residential Project")
 
-    door_area = calculate_opening_area(0.9, 2.1, number_of_doors)
-    window_area = calculate_opening_area(1.2, 1.2, number_of_windows)
-
-    net_wall_area = calculate_net_wall_area(
-        gross_wall_area, door_area, window_area
+    st.write(
+        "Enter the information for the proposed residential project."
     )
 
-    tile_quantity = calculate_quantity_with_waste(floor_area, 10)
-    paint_area = calculate_quantity_with_waste(net_wall_area, 5)
+    st.divider()
 
-    tile_data = get_material_price("tiles")
-    tile_rate = tile_data["rate"]
+    # -----------------------------------------------------
+    # PROJECT INFORMATION
+    # -----------------------------------------------------
 
-    paint_data = get_material_price("paint")
-    paint_rate = paint_data["rate"]
+    st.header("📋 Project Information")
 
-    tile_cost = calculate_material_cost(tile_quantity, tile_rate)
-    paint_cost = calculate_material_cost(paint_area, paint_rate)
-    total_cost = calculate_total_cost([tile_cost, paint_cost])
-
-    # Store calculation outputs in session state so they persist across reruns
-    st.session_state["calc_done"] = True
-    st.session_state["calc_data"] = {
-        "floor_area": floor_area,
-        "perimeter": perimeter,
-        "gross_wall_area": gross_wall_area,
-        "door_area": door_area,
-        "window_area": window_area,
-        "net_wall_area": net_wall_area,
-        "tile_quantity": tile_quantity,
-        "paint_area": paint_area,
-        "tile_cost": tile_cost,
-        "paint_cost": paint_cost,
-        "total_cost": total_cost,
-    }
-
-    save_project(
-        project_name, project_number, location, building_type,
-        length, width, wall_height, number_of_doors, number_of_windows,
-        floor_area, perimeter, gross_wall_area, door_area, window_area, net_wall_area
+    project_name = st.text_input(
+        "Project Name",
+        placeholder="e.g. Smith Residence"
     )
 
-    st.success("Project saved successfully!")
+    project_number = st.text_input(
+        "Project Number",
+        placeholder="e.g. PRJ-2026-001"
+    )
 
-# ---------------------------------------------------------
-# DISPLAY RESULTS & GENERATE PDF
-# ---------------------------------------------------------
+    location = st.text_input(
+        "Location",
+        placeholder="e.g. Cape Town"
+    )
 
-if st.session_state.get("calc_done"):
-    data = st.session_state["calc_data"]
+    building_type = st.selectbox(
+        "Building Type",
+        [
+            "Single-storey dwelling",
+            "Double-storey dwelling"
+        ]
+    )
 
-    st.header("📊 Quantity Summary")
+    st.divider()
+
+    # -----------------------------------------------------
+    # BUILDING DIMENSIONS
+    # -----------------------------------------------------
+
+    st.header("📐 Building Dimensions")
+
     col1, col2, col3 = st.columns(3)
+
     with col1:
-        st.metric("Floor Area", f"{data['floor_area']:.2f} m²")
+        length = st.number_input(
+            "Length (m)",
+            min_value=0.0,
+            step=0.1
+        )
+
     with col2:
-        st.metric("Perimeter", f"{data['perimeter']:.2f} m")
+        width = st.number_input(
+            "Width (m)",
+            min_value=0.0,
+            step=0.1
+        )
+
     with col3:
-        st.metric("Net Wall Area", f"{data['net_wall_area']:.2f} m²")
+        wall_height = st.number_input(
+            "Wall Height (m)",
+            min_value=0.0,
+            step=0.1
+        )
 
     st.divider()
 
-    st.subheader("Detailed Quantities")
-    st.write(f"**Gross Wall Area:** {data['gross_wall_area']:.2f} m²")
-    st.write(f"**Door Opening Area:** {data['door_area']:.2f} m²")
-    st.write(f"**Window Opening Area:** {data['window_area']:.2f} m²")
-    st.write(f"**Floor Tiles:** {data['tile_quantity']:.2f} m² (incl. 10% waste)")
-    st.write(f"**Paint Area:** {data['paint_area']:.2f} m² (incl. 5% allowance)")
+    # -----------------------------------------------------
+    # DOORS AND WINDOWS
+    # -----------------------------------------------------
 
-    st.subheader("💰 Cost Estimate")
-    st.write(f"**Floor Tiles:** R{data['tile_cost']:,.2f}")
-    st.write(f"**Paint:** R{data['paint_cost']:,.2f}")
-    st.metric("Estimated Total", f"R{data['total_cost']:,.2f}")
+    st.header("🚪 Doors & Windows")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        number_of_doors = st.number_input(
+            "Number of Doors",
+            min_value=0,
+            step=1
+        )
+
+    with col2:
+
+        number_of_windows = st.number_input(
+            "Number of Windows",
+            min_value=0,
+            step=1
+        )
 
     st.divider()
 
-    pdf_path = "reports/generated/buildquant_report.pdf"
-    os.makedirs("reports/generated", exist_ok=True)
+    # -----------------------------------------------------
+    # CALCULATE PROJECT
+    # -----------------------------------------------------
 
-    if st.button("📄 Generate PDF Report"):
-        generate_report(
-            pdf_path,
+    if st.button(
+        "🧮 Calculate Quantities",
+        type="primary",
+        use_container_width=True
+    ):
+
+        floor_area = calculate_floor_area(
+            length,
+            width
+        )
+
+        perimeter = calculate_perimeter(
+            length,
+            width
+        )
+
+        gross_wall_area = calculate_gross_wall_area(
+            perimeter,
+            wall_height
+        )
+
+        door_area = calculate_opening_area(
+            0.9,
+            2.1,
+            number_of_doors
+        )
+
+        window_area = calculate_opening_area(
+            1.2,
+            1.2,
+            number_of_windows
+        )
+
+        net_wall_area = calculate_net_wall_area(
+            gross_wall_area,
+            door_area,
+            window_area
+        )
+
+        tile_quantity = calculate_quantity_with_waste(
+            floor_area,
+            10
+        )
+
+        paint_area = calculate_quantity_with_waste(
+            net_wall_area,
+            5
+        )
+
+        # -------------------------------------------------
+        # GET MATERIAL PRICES FROM REST API
+        # -------------------------------------------------
+
+        tile_data = get_material_price("tiles")
+
+        tile_rate = tile_data["rate"]
+
+        paint_data = get_material_price("paint")
+
+        paint_rate = paint_data["rate"]
+
+        # -------------------------------------------------
+        # CALCULATE COSTS
+        # -------------------------------------------------
+
+        tile_cost = calculate_material_cost(
+            tile_quantity,
+            tile_rate
+        )
+
+        paint_cost = calculate_material_cost(
+            paint_area,
+            paint_rate
+        )
+
+        total_cost = calculate_total_cost(
+            [
+                tile_cost,
+                paint_cost
+            ]
+        )
+
+        # -------------------------------------------------
+        # SAVE CALCULATION IN SESSION STATE
+        # -------------------------------------------------
+
+        st.session_state["calc_done"] = True
+
+        st.session_state["calc_data"] = {
+
+            "project_name": project_name,
+
+            "project_number": project_number,
+
+            "location": location,
+
+            "building_type": building_type,
+
+            "floor_area": floor_area,
+
+            "perimeter": perimeter,
+
+            "gross_wall_area": gross_wall_area,
+
+            "door_area": door_area,
+
+            "window_area": window_area,
+
+            "net_wall_area": net_wall_area,
+
+            "tile_quantity": tile_quantity,
+
+            "paint_area": paint_area,
+
+            "tile_rate": tile_rate,
+
+            "paint_rate": paint_rate,
+
+            "tile_cost": tile_cost,
+
+            "paint_cost": paint_cost,
+
+            "total_cost": total_cost
+        }
+
+        # -------------------------------------------------
+        # SAVE PROJECT TO DATABASE
+        # -------------------------------------------------
+
+        save_project(
             project_name,
             project_number,
             location,
-            data["floor_area"],
-            data["net_wall_area"],
-            data["tile_quantity"],
-            data["paint_area"],
-            data["tile_cost"],
-            data["paint_cost"],
-            data["total_cost"]
+            building_type,
+            length,
+            width,
+            wall_height,
+            number_of_doors,
+            number_of_windows,
+            floor_area,
+            perimeter,
+            gross_wall_area,
+            door_area,
+            window_area,
+            net_wall_area
         )
-        st.success("PDF report generated successfully!")
 
-    # Provide direct download button when the generated file exists
-    if os.path.exists(pdf_path):
-        with open(pdf_path, "rb") as file:
-            st.download_button(
-                label="⬇️ Download PDF Report",
-                data=file,
-                file_name=f"{project_name or 'buildquant'}_report.pdf",
-                mime="application/pdf"
+        st.success(
+            "✅ Project calculated and saved successfully!"
+        )
+
+        st.balloons()
+
+# ---------------------------------------------------------
+# QUANTITIES PAGE
+# ---------------------------------------------------------
+
+if page == "📐 Quantities":
+
+    st.title("📐 Quantity Analysis")
+
+    if st.session_state.get("calc_done"):
+
+        data = st.session_state["calc_data"]
+
+        st.subheader("Current Project")
+
+        st.write(
+            f"**Project:** {data['project_name']}"
+        )
+
+        st.divider()
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            st.metric(
+                "Floor Area",
+                f"{data['floor_area']:.2f} m²"
             )
 
+        with col2:
+            st.metric(
+                "Perimeter",
+                f"{data['perimeter']:.2f} m"
+            )
+
+        with col3:
+            st.metric(
+                "Net Wall Area",
+                f"{data['net_wall_area']:.2f} m²"
+            )
+
+        st.divider()
+
+        st.subheader("Detailed Quantities")
+
+        quantity_data = pd.DataFrame({
+            "Item": [
+                "Floor Area",
+                "Perimeter",
+                "Gross Wall Area",
+                "Door Opening Area",
+                "Window Opening Area",
+                "Net Wall Area",
+                "Floor Tiles",
+                "Paint Area"
+            ],
+
+            "Quantity": [
+                f"{data['floor_area']:.2f} m²",
+                f"{data['perimeter']:.2f} m",
+                f"{data['gross_wall_area']:.2f} m²",
+                f"{data['door_area']:.2f} m²",
+                f"{data['window_area']:.2f} m²",
+                f"{data['net_wall_area']:.2f} m²",
+                f"{data['tile_quantity']:.2f} m²",
+                f"{data['paint_area']:.2f} m²"
+            ]
+        })
+
+        st.dataframe(
+            quantity_data,
+            use_container_width=True,
+            hide_index=True
+        )
+
+    else:
+
+        st.info(
+            "No calculated project is available yet. "
+            "Go to 📋 New Project and calculate a project first."
+        )
 
 
 # ---------------------------------------------------------
-# BUILDQUANT GREEN DASHBOARD
+# COST ESTIMATE PAGE
 # ---------------------------------------------------------
 
-st.divider()
+if page == "💰 Cost Estimate":
+
+    st.title("💰 Cost Estimate")
+
+    if st.session_state.get("calc_done"):
+
+        data = st.session_state["calc_data"]
+
+        st.subheader(
+            f"Estimate — {data['project_name']}"
+        )
+
+        st.divider()
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+
+            st.metric(
+                "Floor Tiles",
+                f"R{data['tile_cost']:,.2f}"
+            )
+
+            st.caption(
+                f"{data['tile_quantity']:.2f} m² × "
+                f"R{data['tile_rate']:,.2f}/m²"
+            )
+
+        with col2:
+
+            st.metric(
+                "Paint",
+                f"R{data['paint_cost']:,.2f}"
+            )
+
+            st.caption(
+                f"{data['paint_area']:.2f} m² × "
+                f"R{data['paint_rate']:,.2f}/m²"
+            )
+
+        with col3:
+
+            st.metric(
+                "Estimated Total",
+                f"R{data['total_cost']:,.2f}"
+            )
+
+        st.divider()
+
+        cost_data = pd.DataFrame({
+
+            "Material": [
+                "Floor Tiles",
+                "Paint"
+            ],
+
+            "Cost": [
+                data["tile_cost"],
+                data["paint_cost"]
+            ]
+        })
+
+        st.subheader("Cost Breakdown")
+
+        st.bar_chart(
+            cost_data.set_index("Material"),
+            color="#198754"
+        )
+
+        st.divider()
+
+        st.info(
+            "Material rates are retrieved from the "
+            "BuildQuant Material Price REST API."
+        )
+
+    else:
+
+        st.info(
+            "No cost estimate is available yet. "
+            "Calculate a project from 📋 New Project first."
+        )
+
+
+# ---------------------------------------------------------
+# REPORTS PAGE
+# ---------------------------------------------------------
+
+if page == "📄 Reports":
+
+    st.title("📄 Project Reports")
+
+    if st.session_state.get("calc_done"):
+
+        data = st.session_state["calc_data"]
+
+        st.write(
+            "Generate a PDF quantity and cost report "
+            "for the current project."
+        )
+
+        st.divider()
+
+        st.subheader(
+            f"📋 {data['project_name']}"
+        )
+
+        st.write(
+            f"**Project Number:** "
+            f"{data['project_number']}"
+        )
+
+        st.write(
+            f"**Location:** "
+            f"{data['location']}"
+        )
+
+        st.write(
+            f"**Estimated Total:** "
+            f"R{data['total_cost']:,.2f}"
+        )
+
+        st.divider()
+
+        pdf_path = (
+            "reports/generated/"
+            "buildquant_report.pdf"
+        )
+
+        os.makedirs(
+            "reports/generated",
+            exist_ok=True
+        )
+
+        if st.button(
+            "📄 Generate PDF Report",
+            type="primary"
+        ):
+
+            generate_report(
+                pdf_path,
+
+                data["project_name"],
+
+                data["project_number"],
+
+                data["location"],
+
+                data["floor_area"],
+
+                data["net_wall_area"],
+
+                data["tile_quantity"],
+
+                data["paint_area"],
+
+                data["tile_cost"],
+
+                data["paint_cost"],
+
+                data["total_cost"]
+            )
+
+            st.success(
+                "✅ PDF report generated successfully!"
+            )
+
+        if os.path.exists(pdf_path):
+
+            with open(
+                pdf_path,
+                "rb"
+            ) as file:
+
+                st.download_button(
+                    label="⬇️ Download PDF Report",
+
+                    data=file,
+
+                    file_name=(
+                        f"{data['project_name'] or 'buildquant'}"
+                        "_report.pdf"
+                    ),
+
+                    mime="application/pdf"
+                )
+
+    else:
+
+        st.info(
+            "Calculate a project first before generating "
+            "a report."
+        )
+
+
+# ---------------------------------------------------------
+# DASHBOARD PAGE
+# ---------------------------------------------------------
+
+if page == "🏠 Dashboard":
+
+    # -----------------------------------------------------
+    # BUILDQUANT GREEN DASHBOARD
+    # -----------------------------------------------------
+
+    st.markdown("""
+    ...
+    """)
 
 # ---------------------------------------------------------
 # DASHBOARD STYLING
