@@ -34,9 +34,50 @@ st.set_page_config(
     page_title="BuildQuant",
     page_icon="🏗️",
     layout="wide"
+    initial_sidebar_state="expanded"
 )
 
 create_tables()
+
+# ---------------------------------------------------------
+# BUILDQUANT SIDEBAR
+# ---------------------------------------------------------
+
+st.sidebar.markdown("""
+# 🏗️ BUILDQUANT
+
+### Residential Quantity System
+
+---
+""")
+
+page = st.sidebar.radio(
+    "Navigation",
+    [
+        "🏠 Dashboard",
+        "📋 New Project",
+        "📐 Quantities",
+        "💰 Cost Estimate",
+        "📊 Analytics",
+        "📄 Reports"
+    ]
+)
+
+st.sidebar.divider()
+
+st.sidebar.markdown("""
+### 🔌 Systems Integration
+
+**Material Price API**
+
+Connected through REST API
+""")
+
+st.sidebar.divider()
+
+st.sidebar.caption(
+    "BuildQuant • Educational Prototype"
+)
 
 # ---------------------------------------------------------
 # TITLE
