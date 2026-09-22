@@ -145,7 +145,6 @@ if page == "📋 New Project":
                 st.error("Wall height must be greater than 0.")
                 st.stop()
 
-            
             # -------------------------------------------------
             # PERFORM CALCULATIONS
             # -------------------------------------------------
@@ -159,12 +158,24 @@ if page == "📋 New Project":
             tile_quantity = calculate_quantity_with_waste(floor_area, 10)
             paint_area = calculate_quantity_with_waste(net_wall_area, 5)
 
-            tile_data = get_material_price("tiles")
-            tile_rate = tile_data.get("rate", 0.0) if isinstance(tile_data, dict) else 0.0
-            
-            paint_data = get_material_price("paint")
-            paint_rate = paint_data.get("rate", 0.0) if isinstance(paint_data, dict) else 0.0
+            # -------------------------------------------------
+            # MATERIAL PRICE API (Stage 5.3 Error Handling)
+            # -------------------------------------------------
+            try:
+                tile_data = get_material_price("tiles")
+                tile_rate = tile_data["rate"]
 
+                paint_data = get_material_price("paint")
+                paint_rate = paint_data["rate"]
+
+            except RuntimeError as error:
+                st.error(f"🔌 Material API Error: {error}")
+                st.info("Start the Flask Material Price API and try again.")
+                st.stop()
+
+            # -------------------------------------------------
+            # COST CALCULATIONS
+            # -------------------------------------------------
             tile_cost = calculate_material_cost(tile_quantity, tile_rate)
             paint_cost = calculate_material_cost(paint_area, paint_rate)
             total_cost = calculate_total_cost([tile_cost, paint_cost])

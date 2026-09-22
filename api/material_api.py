@@ -1,40 +1,29 @@
-from flask import Flask, jsonify
+import requests
 
-app = Flask(__name__)
+API_URL = "http://localhost:5000"
 
+def get_material_price(material):
+    try:
+        response = requests.get(
+            f"{API_URL}/materials/{material}",
+            timeout=5
+        )
+        response.raise_for_status()
+        return response.json()
 
-MATERIALS = {
-    "concrete": {
-        "material": "concrete",
-        "unit": "m3",
-        "rate": 1500
-    },
+    except requests.exceptions.ConnectionError:
+        raise RuntimeError(
+            "Unable to connect to the Material Price API. "
+            "Please make sure the Flask API is running."
+        )
 
-    "tiles": {
-        "material": "tiles",
-        "unit": "m2",
-        "rate": 350
-    },
+    except requests.exceptions.Timeout:
+        raise RuntimeError(
+            "The Material Price API took too long to respond."
+        )
 
-    "paint": {
-        "material": "paint",
-        "unit": "m2",
-        "rate": 120
-    }
-}
-
-
-@app.route("/materials/<material>")
-def get_material(material):
-
-    if material not in MATERIALS:
-        return jsonify({
-            "error": "Material not found"
-        }), 404
-
-    return jsonify(MATERIALS[material])
-
-
-if __name__ == "__main__":
-    app.run(port=5000)
-
+    except requests.exceptions.HTTPError:
+        raise RuntimeError(
+            f"The Material Price API returned an error "
+            f"for material: {material}"
+        )
