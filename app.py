@@ -260,7 +260,16 @@ elif page == "📐 Quantities":
 
     if st.session_state.get("calc_done"):
         data = st.session_state["calc_data"]
-        st.subheader(f"Current Project: {data['project_name']}")
+
+        st.subheader(
+            f"📋 {data['project_name']}"
+        )
+        st.caption(
+            f"{data['project_number']} • "
+            f"{data['location']} • "
+            f"{data['building_type']}"
+        )
+
         st.divider()
 
         col1, col2, col3 = st.columns(3)
@@ -305,6 +314,11 @@ elif page == "📐 Quantities":
     else:
         st.info("No active calculation session. Please go to 📋 New Project and execute a calculation first.")
 
+        st.warning(
+            "⚠️ BuildQuant provides preliminary educational "
+            "estimates. It does not replace professional "
+            "quantity surveying, project costing or a formal BoQ."
+        )
 
 # ---------------------------------------------------------
 # COST ESTIMATE PAGE
