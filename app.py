@@ -572,6 +572,9 @@ elif page == "📄 Reports":
         st.write(f"**Project Number:** {data['project_number']}")
         st.write(f"**Location:** {data['location']}")
         st.write(f"**Estimated Total:** R{data['total_cost']:,.2f}")
+
+        st.caption("⚠️ BuildQuant is an educational prototype and does not replace professional quantity surveying.")
+        
         st.divider()
 
         pdf_dir = "reports/generated"
@@ -604,6 +607,7 @@ elif page == "📄 Reports":
                 )
     else:
         st.info("Please complete a project calculation in 📋 New Project before generating reports.")
+        
 
 
 # ---------------------------------------------------------

@@ -5,7 +5,8 @@ from reportlab.platypus import (
     Spacer,
     Table
 )
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 
 
 def generate_report(
@@ -28,6 +29,14 @@ def generate_report(
     )
 
     styles = getSampleStyleSheet()
+
+    disclaimer_style = ParagraphStyle(
+        'DisclaimerStyle',
+        parent=styles['Normal'],
+        fontSize=8,
+        textColor=colors.HexColor('#6c757d'),
+        spaceBefore=30
+    )
 
     content = []
 
@@ -113,9 +122,9 @@ def generate_report(
 
     content.append(
         Paragraph(
-            "BuildQuant is an educational prototype and "
+            "<b>Disclaimer:</b> BuildQuant is an educational prototype and "
             "does not replace professional quantity surveying.",
-            styles["Normal"]
+            disclaimer_style
         )
     )
 
