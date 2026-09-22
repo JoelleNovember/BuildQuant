@@ -240,8 +240,15 @@ if page == "📋 New Project":
                 total_cost
                 )
 
-            st.success("✅ Project calculated and saved successfully!")
+            st.success(f"✅ {project_name} has been calculated "
+                       f"and saved successfully!" )
             st.balloons()
+
+            st.info(
+                "You can now view the results under "
+                "📐 Quantities, 💰 Cost Estimate, "
+                "📊 Analytics or 📄 Reports."
+            )
 
 # ---------------------------------------------------------
 # QUANTITIES PAGE
