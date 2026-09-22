@@ -67,11 +67,19 @@ page = st.sidebar.radio(
 )
 
 st.sidebar.divider()
-st.sidebar.markdown("""
-### 🔌 Systems Integration
-**Material Price API**
-Connected through REST API
-""")
+
+# ---------------------------------------------------------
+# API STATUS CHECKER
+# ---------------------------------------------------------
+st.sidebar.markdown("### 🔌 Systems Integration")
+st.sidebar.caption("Material Price REST API")
+
+try:
+    api_test = get_material_price("tiles")
+    st.sidebar.success("API Connected")
+except Exception:
+    st.sidebar.error("API Disconnected (Start Flask Server)")
+
 st.sidebar.divider()
 st.sidebar.caption("BuildQuant • Educational Prototype")
 
@@ -159,7 +167,7 @@ if page == "📋 New Project":
             paint_area = calculate_quantity_with_waste(net_wall_area, 5)
 
             # -------------------------------------------------
-            # MATERIAL PRICE API (Stage 5.3 Error Handling)
+            # MATERIAL PRICE API
             # -------------------------------------------------
             try:
                 tile_data = get_material_price("tiles")
