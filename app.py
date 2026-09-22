@@ -118,9 +118,37 @@ if page == "📋 New Project":
 
     if st.button("🧮 Calculate Quantities", type="primary", use_container_width=True):
         if not project_name:
-            st.error("Please enter a Project Name before calculating.")
-        else:
-            # Perform calculations
+            # -------------------------------------------------
+            # INPUT VALIDATION
+            # -------------------------------------------------
+            if not project_name.strip():
+                st.error("Please enter a project name.")
+                st.stop()
+
+            if not project_number.strip():
+                st.error("Please enter a project number.")
+                st.stop()
+
+            if not location.strip():
+                st.error("Please enter a project location.")
+                st.stop()
+
+            if length <= 0:
+                st.error("Length must be greater than 0.")
+                st.stop()
+
+            if width <= 0:
+                st.error("Width must be greater than 0.")
+                st.stop()
+
+            if wall_height <= 0:
+                st.error("Wall height must be greater than 0.")
+                st.stop()
+
+            
+            # -------------------------------------------------
+            # PERFORM CALCULATIONS
+            # -------------------------------------------------
             floor_area = calculate_floor_area(length, width)
             perimeter = calculate_perimeter(length, width)
             gross_wall_area = calculate_gross_wall_area(perimeter, wall_height)
