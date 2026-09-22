@@ -165,10 +165,33 @@ if page == "📋 New Project":
 
             # Save to SQLite Database
             save_project(
-                project_name, project_number, location, building_type,
-                length, width, wall_height, number_of_doors, number_of_windows,
-                floor_area, perimeter, gross_wall_area, door_area, window_area, net_wall_area
-            )
+                project_name,
+                project_number,
+                location,
+                building_type,
+                length,
+                width,
+                wall_height,
+                number_of_doors,
+                number_of_windows,
+
+                floor_area,
+                perimeter,
+                gross_wall_area,
+                door_area,
+                window_area,
+                net_wall_area,
+
+                tile_quantity,
+                paint_area,
+
+                tile_rate,
+                paint_rate,
+
+                tile_cost,
+                paint_cost,
+                total_cost
+                )
 
             st.success("✅ Project calculated and saved successfully!")
             st.balloons()
