@@ -405,11 +405,8 @@ elif page == "📊 Analytics":
         # -------------------------------------------------
 
         total_projects = len(df)
-
         average_floor_area = df["Floor Area"].mean()
-
         average_cost = df["Total Cost"].mean()
-
         total_estimated_cost = df["Total Cost"].sum()
 
         # -------------------------------------------------
@@ -637,6 +634,21 @@ elif page == "🏠 Dashboard":
         <p>Residential Quantity Estimation & Data Engineering Dashboard</p>
     </div>
     """, unsafe_allow_html=True)
+
+    # ---------------------------------------------------------
+    # CURRENT PROJECT STATUS
+    # ---------------------------------------------------------
+    if st.session_state.get("calc_done"):
+        current_project = st.session_state["calc_data"]
+        st.success(
+            f"📌 Current project: "
+            f"{current_project['project_name']}"
+        )
+    else:
+        st.info(
+            "No project is currently being analysed. "
+            "Create a project from 📋 New Project."
+        )
 
     projects = get_projects()
 
