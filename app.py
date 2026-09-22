@@ -309,30 +309,186 @@ elif page == "💰 Cost Estimate":
 # ---------------------------------------------------------
 elif page == "📊 Analytics":
 
-    st.title("📊 Project Analytics")
+    st.title("📊 BuildQuant Analytics")
+
+    st.write(
+        "Analyse historical residential projects stored "
+        "in the BuildQuant database."
+    )
+
+    st.divider()
+
     projects = get_projects()
 
     if projects:
-        try:
-            columns = [
-                "ID", "Project Name", "Project Number", "Location", "Building Type",
-                "Length", "Width", "Wall Height", "Doors", "Windows",
-                "Floor Area", "Perimeter", "Gross Wall Area", "Door Area", "Window Area", "Net Wall Area"
+
+        columns = [
+            "ID",
+            "Project Name",
+            "Project Number",
+            "Location",
+            "Building Type",
+            "Length",
+            "Width",
+            "Wall Height",
+            "Doors",
+            "Windows",
+            "Floor Area",
+            "Perimeter",
+            "Gross Wall Area",
+            "Door Area",
+            "Window Area",
+            "Net Wall Area",
+            "Tile Quantity",
+            "Paint Area",
+            "Tile Rate",
+            "Paint Rate",
+            "Tile Cost",
+            "Paint Cost",
+            "Total Cost"
+        ]
+
+        df = pd.DataFrame(
+            projects,
+            columns=columns
+        )
+
+        # -------------------------------------------------
+        # KPI CALCULATIONS
+        # -------------------------------------------------
+
+        total_projects = len(df)
+
+        average_floor_area = df["Floor Area"].mean()
+
+        average_cost = df["Total Cost"].mean()
+
+        total_estimated_cost = df["Total Cost"].sum()
+
+        # -------------------------------------------------
+        # KPI CARDS
+        # -------------------------------------------------
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        with col1:
+
+            st.metric(
+                "🏗️ Projects",
+                total_projects
+            )
+
+        with col2:
+
+            st.metric(
+                "📐 Avg Floor Area",
+                f"{average_floor_area:.2f} m²"
+            )
+
+        with col3:
+
+            st.metric(
+                "💰 Avg Project Cost",
+                f"R{average_cost:,.2f}"
+            )
+
+        with col4:
+
+            st.metric(
+                "💵 Total Estimated Cost",
+                f"R{total_estimated_cost:,.2f}"
+            )
+
+        st.divider()
+
+        # -------------------------------------------------
+        # PROJECT COSTS
+        # -------------------------------------------------
+
+        st.subheader("💰 Project Cost Comparison")
+
+        cost_chart = (
+            df[
+                ["Project Name","Total Cost"]
             ]
-            df = pd.DataFrame(projects, columns=columns)
+            .set_index("Project Name")
+        )
 
-            col1, col2 = st.columns(2)
-            with col1:
-                st.write("### 📐 Floor Area Comparison (m²)")
-                st.bar_chart(df[["Project Name", "Floor Area"]].set_index("Project Name"), color="#198754")
-            with col2:
-                st.write("### 🧱 Net Wall Area Comparison (m²)")
-                st.bar_chart(df[["Project Name", "Net Wall Area"]].set_index("Project Name"), color="#0F5132")
+        st.bar_chart(
+            cost_chart,
+            color="#198754"
+        )
 
-        except Exception as e:
-            st.error(f"Error structuring analytics data: {e}")
+        # -------------------------------------------------
+        # FLOOR AREA
+        # -------------------------------------------------
+
+        st.subheader("📐 Floor Area Comparison")
+
+        floor_chart = (
+            df[
+                ["Project Name","Floor Area"]
+            ]
+            .set_index("Project Name")
+        )
+
+        st.bar_chart(
+            floor_chart,
+            color="#0F5132"
+        )
+
+        # -------------------------------------------------
+        # MATERIAL COSTS
+        # -------------------------------------------------
+
+        st.subheader("🧱 Material Cost Analysis")
+
+        material_totals = pd.DataFrame({
+
+            "Material": ["Floor Tiles","Paint"],
+
+            "Total Cost": [
+                df["Tile Cost"].sum(),
+                df["Paint Cost"].sum()
+            ]
+        })
+
+        st.bar_chart(
+            material_totals.set_index("Material"),
+            color="#198754"
+        )
+
+        # -------------------------------------------------
+        # PROJECT TABLE
+        # -------------------------------------------------
+
+        st.subheader("📋 Historical Project Data")
+
+        display_columns = [
+            "Project Name",
+            "Project Number",
+            "Location",
+            "Building Type",
+            "Floor Area",
+            "Tile Quantity",
+            "Paint Area",
+            "Tile Cost",
+            "Paint Cost",
+            "Total Cost"
+        ]
+
+        st.dataframe(
+            df[display_columns],
+            use_container_width=True,
+            hide_index=True
+        )
+
     else:
-        st.info("No saved projects in the database. Run calculations in 📋 New Project to populate analytics.")
+
+        st.info(
+            "No project data is available yet. "
+            "Create a project from 📋 New Project."
+        )
 
 
 # ---------------------------------------------------------
