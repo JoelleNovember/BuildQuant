@@ -93,7 +93,6 @@ if page == "📋 New Project":
     st.write("Enter the information for the proposed residential project.")
     st.divider()
 
-
     st.header("📋 Project Information")
     project_name = st.text_input("Project Name", placeholder="e.g. Smith Residence", key="np_name")
     project_number = st.text_input("Project Number", placeholder="e.g. PRJ-2026-001", key="np_num")
@@ -125,130 +124,124 @@ if page == "📋 New Project":
     st.divider()
 
     if st.button("🧮 Calculate Quantities", type="primary", use_container_width=True):
-        if not project_name:
-            # -------------------------------------------------
-            # INPUT VALIDATION
-            # -------------------------------------------------
-            if not project_name.strip():
-                st.error("Please enter a project name.")
-                st.stop()
+        # -------------------------------------------------
+        # INPUT VALIDATION
+        # -------------------------------------------------
+        if not project_name.strip():
+            st.error("Please enter a project name.")
+            st.stop()
 
-            if not project_number.strip():
-                st.error("Please enter a project number.")
-                st.stop()
+        if not project_number.strip():
+            st.error("Please enter a project number.")
+            st.stop()
 
-            if not location.strip():
-                st.error("Please enter a project location.")
-                st.stop()
+        if not location.strip():
+            st.error("Please enter a project location.")
+            st.stop()
 
-            if length <= 0:
-                st.error("Length must be greater than 0.")
-                st.stop()
+        if length <= 0:
+            st.error("Length must be greater than 0.")
+            st.stop()
 
-            if width <= 0:
-                st.error("Width must be greater than 0.")
-                st.stop()
+        if width <= 0:
+            st.error("Width must be greater than 0.")
+            st.stop()
 
-            if wall_height <= 0:
-                st.error("Wall height must be greater than 0.")
-                st.stop()
+        if wall_height <= 0:
+            st.error("Wall height must be greater than 0.")
+            st.stop()
 
-            # -------------------------------------------------
-            # PERFORM CALCULATIONS
-            # -------------------------------------------------
-            floor_area = calculate_floor_area(length, width)
-            perimeter = calculate_perimeter(length, width)
-            gross_wall_area = calculate_gross_wall_area(perimeter, wall_height)
-            door_area = calculate_opening_area(0.9, 2.1, number_of_doors)
-            window_area = calculate_opening_area(1.2, 1.2, number_of_windows)
-            net_wall_area = calculate_net_wall_area(gross_wall_area, door_area, window_area)
+        # -------------------------------------------------
+        # PERFORM CALCULATIONS
+        # -------------------------------------------------
+        floor_area = calculate_floor_area(length, width)
+        perimeter = calculate_perimeter(length, width)
+        gross_wall_area = calculate_gross_wall_area(perimeter, wall_height)
+        door_area = calculate_opening_area(0.9, 2.1, number_of_doors)
+        window_area = calculate_opening_area(1.2, 1.2, number_of_windows)
+        net_wall_area = calculate_net_wall_area(gross_wall_area, door_area, window_area)
 
-            tile_quantity = calculate_quantity_with_waste(floor_area, 10)
-            paint_area = calculate_quantity_with_waste(net_wall_area, 5)
+        tile_quantity = calculate_quantity_with_waste(floor_area, 10)
+        paint_area = calculate_quantity_with_waste(net_wall_area, 5)
 
-            # -------------------------------------------------
-            # MATERIAL PRICE API
-            # -------------------------------------------------
-            try:
-                tile_data = get_material_price("tiles")
-                tile_rate = tile_data["rate"]
+        # -------------------------------------------------
+        # MATERIAL PRICE API
+        # -------------------------------------------------
+        try:
+            tile_data = get_material_price("tiles")
+            tile_rate = tile_data["rate"]
 
-                paint_data = get_material_price("paint")
-                paint_rate = paint_data["rate"]
+            paint_data = get_material_price("paint")
+            paint_rate = paint_data["rate"]
 
-            except RuntimeError as error:
-                st.error(f"🔌 Material API Error: {error}")
-                st.info("Start the Flask Material Price API and try again.")
-                st.stop()
+        except RuntimeError as error:
+            st.error(f"🔌 Material API Error: {error}")
+            st.info("Start the Flask Material Price API and try again.")
+            st.stop()
 
-            # -------------------------------------------------
-            # COST CALCULATIONS
-            # -------------------------------------------------
-            tile_cost = calculate_material_cost(tile_quantity, tile_rate)
-            paint_cost = calculate_material_cost(paint_area, paint_rate)
-            total_cost = calculate_total_cost([tile_cost, paint_cost])
+        # -------------------------------------------------
+        # COST CALCULATIONS
+        # -------------------------------------------------
+        tile_cost = calculate_material_cost(tile_quantity, tile_rate)
+        paint_cost = calculate_material_cost(paint_area, paint_rate)
+        total_cost = calculate_total_cost([tile_cost, paint_cost])
 
-            # Persist calculation in session state
-            st.session_state["calc_done"] = True
-            st.session_state["calc_data"] = {
-                "project_name": project_name,
-                "project_number": project_number,
-                "location": location,
-                "building_type": building_type,
-                "floor_area": floor_area,
-                "perimeter": perimeter,
-                "gross_wall_area": gross_wall_area,
-                "door_area": door_area,
-                "window_area": window_area,
-                "net_wall_area": net_wall_area,
-                "tile_quantity": tile_quantity,
-                "paint_area": paint_area,
-                "tile_rate": tile_rate,
-                "paint_rate": paint_rate,
-                "tile_cost": tile_cost,
-                "paint_cost": paint_cost,
-                "total_cost": total_cost
-            }
+        # Persist calculation in session state
+        st.session_state["calc_done"] = True
+        st.session_state["calc_data"] = {
+            "project_name": project_name,
+            "project_number": project_number,
+            "location": location,
+            "building_type": building_type,
+            "floor_area": floor_area,
+            "perimeter": perimeter,
+            "gross_wall_area": gross_wall_area,
+            "door_area": door_area,
+            "window_area": window_area,
+            "net_wall_area": net_wall_area,
+            "tile_quantity": tile_quantity,
+            "paint_area": paint_area,
+            "tile_rate": tile_rate,
+            "paint_rate": paint_rate,
+            "tile_cost": tile_cost,
+            "paint_cost": paint_cost,
+            "total_cost": total_cost
+        }
 
-            # Save to SQLite Database
-            save_project(
-                project_name,
-                project_number,
-                location,
-                building_type,
-                length,
-                width,
-                wall_height,
-                number_of_doors,
-                number_of_windows,
+        # Save to SQLite Database
+        save_project(
+            project_name,
+            project_number,
+            location,
+            building_type,
+            length,
+            width,
+            wall_height,
+            number_of_doors,
+            number_of_windows,
+            floor_area,
+            perimeter,
+            gross_wall_area,
+            door_area,
+            window_area,
+            net_wall_area,
+            tile_quantity,
+            paint_area,
+            tile_rate,
+            paint_rate,
+            tile_cost,
+            paint_cost,
+            total_cost
+        )
 
-                floor_area,
-                perimeter,
-                gross_wall_area,
-                door_area,
-                window_area,
-                net_wall_area,
+        st.success(f"✅ {project_name} has been calculated and saved successfully!")
+        st.balloons()
 
-                tile_quantity,
-                paint_area,
-
-                tile_rate,
-                paint_rate,
-
-                tile_cost,
-                paint_cost,
-                total_cost
-                )
-
-            st.success(f"✅ {project_name} has been calculated "
-                       f"and saved successfully!" )
-            st.balloons()
-
-            st.info(
-                "You can now view the results under "
-                "📐 Quantities, 💰 Cost Estimate, "
-                "📊 Analytics or 📄 Reports."
-            )
+        st.info(
+            "You can now view the results under "
+            "📐 Quantities, 💰 Cost Estimate, "
+            "📊 Analytics or 📄 Reports."
+        )
 
 # ---------------------------------------------------------
 # QUANTITIES PAGE
@@ -311,14 +304,17 @@ elif page == "📐 Quantities":
         })
 
         st.dataframe(quantity_data, use_container_width=True, hide_index=True)
+        
+        # Added Disclaimer Here
+        st.divider()
+        st.warning(
+            "⚠️ **Disclaimer:** BuildQuant provides preliminary educational "
+            "estimates only. It does not replace professional quantity surveying, "
+            "project costing, or a formal Bill of Quantities (BoQ)."
+        )
     else:
         st.info("No active calculation session. Please go to 📋 New Project and execute a calculation first.")
 
-        st.warning(
-            "⚠️ BuildQuant provides preliminary educational "
-            "estimates. It does not replace professional "
-            "quantity surveying, project costing or a formal BoQ."
-        )
 
 # ---------------------------------------------------------
 # COST ESTIMATE PAGE
@@ -335,9 +331,9 @@ elif page == "💰 Cost Estimate":
 
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("Floor Tiles Cost",f"R{data['tile_cost']:,.2f}")
+            st.metric("Floor Tiles Cost", f"R{data['tile_cost']:,.2f}")
             st.caption(
-                f"  {data['tile_quantity']:.2f} m² × "
+                f"{data['tile_quantity']:.2f} m² × "
                 f"R{data['tile_rate']:,.2f}/m²"
             )
 
@@ -368,6 +364,12 @@ elif page == "💰 Cost Estimate":
         st.bar_chart(cost_df.set_index("Material"), color="#198754")
         st.divider()
         st.info("Material rates are live updates from the BuildQuant Material Price REST API.")
+        
+        # Added Disclaimer Here
+        st.warning(
+            "⚠️ **Disclaimer:** Cost figures are computed using live API rates and standard waste allowances. "
+            "They are intended for prototype and educational purposes and should not be used for final contractual tenders."
+        )
     else:
         st.info("No cost estimation available. Please go to 📋 New Project and execute a calculation first.")
 
@@ -421,10 +423,6 @@ elif page == "📊 Analytics":
             columns=columns
         )
 
-        # -------------------------------------------------
-        # KPI CALCULATIONS
-        # -------------------------------------------------
-
         total_projects = len(df)
         average_floor_area = df["Floor Area"].mean()
         average_cost = df["Total Cost"].mean()
@@ -436,111 +434,44 @@ elif page == "📊 Analytics":
         
         total_estimated_cost = df["Total Cost"].sum()
 
-        # -------------------------------------------------
-        # KPI CARDS
-        # -------------------------------------------------
-
         col1, col2, col3, col4, col5 = st.columns(5)
 
         with col1:
-
-            st.metric(
-                "🏗️ Projects",
-                total_projects
-            )
+            st.metric("🏗️ Projects", total_projects)
 
         with col2:
-
-            st.metric(
-                "📐 Avg Floor Area",
-                f"{average_floor_area:.2f} m²"
-            )
+            st.metric("📐 Avg Floor Area", f"{average_floor_area:.2f} m²")
 
         with col3:
-
-            st.metric(
-                "💰 Avg Project Cost",
-                f"R{average_cost:,.2f}"
-            )
+            st.metric("💰 Avg Project Cost", f"R{average_cost:,.2f}")
 
         with col4:
-
-            st.metric(
-                "💵 Total Estimated Cost",
-                f"R{total_estimated_cost:,.2f}"
-            )
+            st.metric("💵 Total Estimated Cost", f"R{total_estimated_cost:,.2f}")
 
         with col5:
-            st.metric(
-                "📏 Largest Project",
-                largest_project
-            )
+            st.metric("📏 Largest Project", largest_project)
 
         st.divider()
 
-        # -------------------------------------------------
-        # PROJECT COSTS
-        # -------------------------------------------------
-
         st.subheader("💰 Project Cost Comparison")
-
-        cost_chart = (
-            df[
-                ["Project Name","Total Cost"]
-            ]
-            .set_index("Project Name")
-        )
-
-        st.bar_chart(
-            cost_chart,
-            color="#198754"
-        )
-
-        # -------------------------------------------------
-        # FLOOR AREA
-        # -------------------------------------------------
+        cost_chart = df[["Project Name", "Total Cost"]].set_index("Project Name")
+        st.bar_chart(cost_chart, color="#198754")
 
         st.subheader("📐 Floor Area Comparison")
-
-        floor_chart = (
-            df[
-                ["Project Name","Floor Area"]
-            ]
-            .set_index("Project Name")
-        )
-
-        st.bar_chart(
-            floor_chart,
-            color="#0F5132"
-        )
-
-        # -------------------------------------------------
-        # MATERIAL COSTS
-        # -------------------------------------------------
+        floor_chart = df[["Project Name", "Floor Area"]].set_index("Project Name")
+        st.bar_chart(floor_chart, color="#0F5132")
 
         st.subheader("🧱 Material Cost Analysis")
-
         material_totals = pd.DataFrame({
-
-            "Material": ["Floor Tiles","Paint"],
-
+            "Material": ["Floor Tiles", "Paint"],
             "Total Cost": [
                 df["Tile Cost"].sum(),
                 df["Paint Cost"].sum()
             ]
         })
-
-        st.bar_chart(
-            material_totals.set_index("Material"),
-            color="#198754"
-        )
-
-        # -------------------------------------------------
-        # PROJECT TABLE
-        # -------------------------------------------------
+        st.bar_chart(material_totals.set_index("Material"), color="#198754")
 
         st.subheader("📋 Historical Project Data")
-
         display_columns = [
             "Project Name",
             "Project Number",
@@ -553,19 +484,10 @@ elif page == "📊 Analytics":
             "Paint Cost",
             "Total Cost"
         ]
-
-        st.dataframe(
-            df[display_columns],
-            use_container_width=True,
-            hide_index=True
-        )
+        st.dataframe(df[display_columns], use_container_width=True, hide_index=True)
 
     else:
-
-        st.info(
-            "No project data is available yet. "
-            "Create a project from 📋 New Project."
-        )
+        st.info("No project data is available yet. Create a project from 📋 New Project.")
 
 
 # ---------------------------------------------------------
@@ -586,7 +508,6 @@ elif page == "📄 Reports":
         st.write(f"**Estimated Total:** R{data['total_cost']:,.2f}")
 
         st.caption("⚠️ BuildQuant is an educational prototype and does not replace professional quantity surveying.")
-
         st.divider()
 
         pdf_dir = "reports/generated"
@@ -619,7 +540,6 @@ elif page == "📄 Reports":
                 )
     else:
         st.info("Please complete a project calculation in 📋 New Project before generating reports.")
-        
 
 
 # ---------------------------------------------------------
@@ -672,9 +592,7 @@ elif page == "🏠 Dashboard":
     </div>
     """, unsafe_allow_html=True)
 
-    # ---------------------------------------------------------
     # CURRENT PROJECT STATUS
-    # ---------------------------------------------------------
     if st.session_state.get("calc_done"):
         current_project = st.session_state["calc_data"]
         st.success(
@@ -694,7 +612,8 @@ elif page == "🏠 Dashboard":
             columns = [
                 "ID", "Project Name", "Project Number", "Location", "Building Type",
                 "Length", "Width", "Wall Height", "Doors", "Windows",
-                "Floor Area", "Perimeter", "Gross Wall Area", "Door Area", "Window Area", "Net Wall Area"
+                "Floor Area", "Perimeter", "Gross Wall Area", "Door Area", "Window Area", "Net Wall Area",
+                "Tile Quantity", "Paint Area", "Tile Rate", "Paint Rate", "Tile Cost", "Paint Cost", "Total Cost"
             ]
             df = pd.DataFrame(projects, columns=columns)
 
