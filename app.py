@@ -428,13 +428,19 @@ elif page == "📊 Analytics":
         total_projects = len(df)
         average_floor_area = df["Floor Area"].mean()
         average_cost = df["Total Cost"].mean()
+
+        largest_project = df.loc[
+            df["Floor Area"].idxmax(),
+            "Project Name"
+        ]
+        
         total_estimated_cost = df["Total Cost"].sum()
 
         # -------------------------------------------------
         # KPI CARDS
         # -------------------------------------------------
 
-        col1, col2, col3, col4 = st.columns(4)
+        col1, col2, col3, col4, col5 = st.columns(5)
 
         with col1:
 
@@ -462,6 +468,12 @@ elif page == "📊 Analytics":
             st.metric(
                 "💵 Total Estimated Cost",
                 f"R{total_estimated_cost:,.2f}"
+            )
+
+        with col5:
+            st.metric(
+                "📏 Largest Project",
+                largest_project
             )
 
         st.divider()
@@ -574,7 +586,7 @@ elif page == "📄 Reports":
         st.write(f"**Estimated Total:** R{data['total_cost']:,.2f}")
 
         st.caption("⚠️ BuildQuant is an educational prototype and does not replace professional quantity surveying.")
-        
+
         st.divider()
 
         pdf_dir = "reports/generated"
