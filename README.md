@@ -2,55 +2,458 @@
 
 ## Residential Quantity Estimation & Data Engineering System
 
-BuildQuant is a beginner-friendly software project that applies **Data Engineering and Systems Integration concepts to the construction industry**.
+BuildQuant is a Python-based educational prototype that combines **construction quantity estimation, data engineering, database storage, REST API integration, analytics, and PDF reporting** into one Streamlit application.
 
-The system is designed to assist with the **preliminary quantity estimation of a proposed residential dwelling**. Users enter basic building information and dimensions, and BuildQuant processes the data to produce estimated construction quantities.
+The project was designed around a practical construction/quantity-surveying use case: collecting proposed residential building information, transforming that information into preliminary quantities, retrieving material rates through a REST API, calculating estimated material costs, storing project data in SQLite, analysing historical projects, and generating a PDF report.
 
-The project combines a construction/Quantity Surveying problem with software development and data engineering.
-
----
-
-# 🎯 Project Goal
-
-The goal of BuildQuant is to create a system that can:
-
-1. Collect proposed dwelling information.
-2. Validate user input.
-3. Transform building measurements into quantities.
-4. Apply simple material and waste calculations.
-5. Store project information and calculated quantities.
-6. Display results through a graphical user interface.
-7. Eventually retrieve material rates through a REST API.
-8. Generate a professional preliminary quantity report.
+> **Important:** BuildQuant is an educational prototype. Its simplified calculations do not replace professional quantity surveying, formal Bills of Quantities (BoQs), professional cost estimating, or construction specifications.
 
 ---
 
-# 👷 Target User
+## 📌 Project Overview
 
-The primary target user is a:
+### Problem
 
-* Quantity Surveyor
-* Construction student
-* Building estimator
-* Construction project manager
-* Property developer
+Residential construction information can involve several separate steps:
 
-The system is intended to support **preliminary estimating** and is not intended to replace professional Quantity Surveying measurements or final Bills of Quantities.
+- collecting project information
+- calculating floor and wall areas
+- accounting for openings
+- allowing for material waste
+- retrieving material rates
+- calculating material costs
+- storing project information
+- comparing historical projects
+- producing reports
+
+BuildQuant brings these steps together into one small data-driven application.
+
+### Goal
+
+The goal of BuildQuant is to demonstrate how a construction-related workflow can be transformed into a simple **data engineering pipeline** using Python.
+
+---
+
+## ✨ Features
+
+### 📋 Project Data Collection
+
+Users can enter:
+
+- Project name
+- Project number
+- Location
+- Building type
+- Length
+- Width
+- Wall height
+- Number of doors
+- Number of windows
+
+### 📐 Quantity Calculations
+
+BuildQuant calculates:
+
+- Floor area
+- Perimeter
+- Gross wall area
+- Door opening area
+- Window opening area
+- Net wall area
+- Floor tile quantity including waste
+- Paint area including allowance
+
+### 💰 Cost Estimation
+
+Material costs are calculated using:
+
+```text
+Quantity × Material Rate = Material Cost
+```
+
+The current prototype calculates:
+
+- Floor tile cost
+- Paint cost
+- Total estimated cost
+
+### 🔌 REST API Integration
+
+BuildQuant retrieves material prices from a Flask REST API.
+
+Example request:
+
+```text
+GET /materials/tiles
+```
+
+Example JSON response:
+
+```json
+{
+    "material": "tiles",
+    "unit": "m2",
+    "rate": 350
+}
+```
+
+The Streamlit application consumes this JSON data and uses the returned rate in its cost calculations.
+
+### 💾 SQLite Database
+
+Project information and calculated cost data are stored in SQLite.
+
+The database stores:
+
+- Project information
+- Building dimensions
+- Opening information
+- Quantity calculations
+- Material quantities
+- Material rates
+- Individual material costs
+- Total estimated cost
+
+### 📊 Dashboard
+
+The dashboard provides:
+
+- Total projects
+- Average floor area
+- Average wall area
+- Building type count
+- Current project estimate
+- Floor-area charts
+- Wall-area charts
+- Saved project table
+- Data pipeline overview
+
+### 📈 Analytics
+
+Historical project data can be analysed using:
+
+- Total project count
+- Average floor area
+- Average project cost
+- Total estimated project cost
+- Largest project
+- Project cost comparisons
+- Floor area comparisons
+- Material cost comparisons
+
+### 📄 PDF Reports
+
+Users can generate and download a PDF report containing:
+
+- Project information
+- Quantity summary
+- Material quantities
+- Cost estimates
+- Educational prototype disclaimer
+
+### ✅ Input Validation
+
+The application validates important inputs before performing calculations.
+
+Examples:
+
+- Project name cannot be empty
+- Project number cannot be empty
+- Location cannot be empty
+- Length must be greater than zero
+- Width must be greater than zero
+- Wall height must be greater than zero
+
+### 🛡️ API Error Handling
+
+The application handles common REST API problems, including:
+
+- API unavailable
+- Connection errors
+- Request timeouts
+- HTTP errors
+
+The sidebar also provides an API status indicator.
+
+---
+
+# 🏛️ System Architecture
+
+
+### Your architecture is now clearer
+
+The project now has a nice separation of responsibilities:
+
+```text
+                    ┌─────────────────┐
+                    │    app.py       │
+                    │  Streamlit UI   │
+                    └────────┬────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              ↓              ↓              ↓
+       ┌────────────┐ ┌─────────────┐ ┌─────────────┐
+       │ validation │ │ calculations│ │  database   │
+       └────────────┘ └──────┬──────┘ └─────────────┘
+                             │
+                             ↓
+                      ┌─────────────┐
+                      │ REST Client │
+                      │ material_api│
+                      └──────┬──────┘
+                             │
+                             ↓
+                      ┌─────────────┐
+                      │ Flask API   │
+                      │ api/        │
+                      └─────────────┘
+
+                             ↓
+                      ┌─────────────┐
+                      │   reports   │
+                      │ PDF output  │
+                      └─────────────┘
+
+                      ┌─────────────┐
+                      │    tests    │
+                      │   Pytest    │
+                      └─────────────┘
+---
+
+# 🔄 Data Engineering Pipeline
+
+BuildQuant follows a simple data pipeline:
+
+```text
+COLLECT
+   ↓
+VALIDATE
+   ↓
+TRANSFORM
+   ↓
+INTEGRATE
+   ↓
+STORE
+   ↓
+ANALYSE
+   ↓
+VISUALISE
+   ↓
+REPORT
+```
+
+### 1. Collect
+
+The user enters residential project information through Streamlit.
+
+### 2. Validate
+
+The application checks that required fields and dimensions contain valid values.
+
+### 3. Transform
+
+Raw project dimensions are transformed into useful quantities such as floor area and net wall area.
+
+### 4. Integrate
+
+Material rates are retrieved from an external Flask REST API.
+
+### 5. Store
+
+Project and cost information is stored in SQLite.
+
+### 6. Analyse
+
+Pandas is used to load and analyse historical project data.
+
+### 7. Visualise
+
+Streamlit charts and dashboard components display the results.
+
+### 8. Report
+
+ReportLab generates a downloadable PDF report.
+
+---
+
+# 🧮 Example Calculation
+
+For a simple 10 m × 8 m dwelling:
+
+```text
+Length       = 10 m
+Width        = 8 m
+Wall Height  = 2.7 m
+Doors        = 6
+Windows      = 8
+```
+
+BuildQuant calculates approximately:
+
+```text
+Floor Area          = 80.00 m²
+Perimeter           = 36.00 m
+Gross Wall Area     = 97.20 m²
+Door Opening Area   = 11.34 m²
+Window Opening Area = 11.52 m²
+Net Wall Area       = 74.34 m²
+```
+
+With the prototype allowances:
+
+```text
+Floor Tiles = 88.00 m²
+Paint Area  = 78.06 m²
+```
+
+Using the prototype API rates:
+
+```text
+Floor Tiles = R30,800.00
+Paint       = R9,367.20
+
+Total       = R40,167.20
+```
+
+These figures are examples produced by the prototype's simplified calculation rules and are not professional QS measurements.
+
+---
+
+# 🔌 REST API
+
+The material service is implemented with Flask.
+
+### Endpoint
+
+```text
+GET /materials/<material>
+```
+
+Supported prototype materials include:
+
+```text
+concrete
+tiles
+paint
+```
+
+Example:
+
+```text
+GET /materials/paint
+```
+
+Response:
+
+```json
+{
+    "material": "paint",
+    "unit": "m2",
+    "rate": 120
+}
+```
+
+BuildQuant uses the returned `rate` rather than keeping the material rate directly inside the Streamlit calculation logic.
+
+This demonstrates a simple **service integration pattern** between two applications.
+
+---
+
+# 🗄️ Database
+
+BuildQuant uses SQLite for local project storage.
+
+The `projects` table stores information including:
+
+```text
+Project details
+Building dimensions
+Doors
+Windows
+Floor area
+Perimeter
+Gross wall area
+Door area
+Window area
+Net wall area
+Tile quantity
+Paint area
+Tile rate
+Paint rate
+Tile cost
+Paint cost
+Total cost
+```
+
+Historical records can then be loaded into Pandas for analytics.
+
+---
+
+# 🖥️ Application Pages
+
+## 🏠 Dashboard
+
+Provides an overview of saved projects and current estimates.
+
+## 📋 New Project
+
+Collects project information and performs the calculation workflow.
+
+## 📐 Quantities
+
+Displays detailed quantity calculations for the current project.
+
+## 💰 Cost Estimate
+
+Displays material rates, material costs and total estimated cost.
+
+## 📊 Analytics
+
+Analyses historical project information stored in SQLite.
+
+## 📄 Reports
+
+Generates downloadable PDF reports.
+
+---
+
+# 🧪 Testing
+
+Pytest is used to test the calculation functions.
+
+Example tests cover:
+
+- Floor area
+- Perimeter
+- Gross wall area
+- Door area
+- Window area
+- Net wall area
+- Waste/allowance calculations
+
+Run the tests with:
+
+```bash
+pytest
+```
 
 ---
 
 # 🛠️ Technologies
 
-The project currently uses or plans to use:
-
-* **Python** — Application logic and calculations
-* **Streamlit** — Graphical user interface
-* **SQLite** — Project and quantity data storage
-* **SQL** — Data querying
-* **Pandas** — Data processing and analysis
-* **ReportLab** — PDF report generation
-* **Pytest** — Automated testing
-* **Git** — Version control
+| Technology | Purpose |
+|---|---|
+| Python | Core application logic |
+| Streamlit | Web application interface |
+| Pandas | Data analysis and transformation |
+| SQLite | Local project database |
+| SQL | Database querying |
+| Flask | Material Price REST API |
+| Requests | HTTP communication with API |
+| ReportLab | PDF report generation |
+| Pytest | Automated testing |
+| Git | Version control |
+| GitLab | Repository and collaboration |
 
 ---
 
@@ -59,632 +462,380 @@ The project currently uses or plans to use:
 ```text
 BuildQuant/
 │
-├── calculations/
-│   └── quantity_calculations.py
+├── api/
+│   └── material_api.py
+│       └── Flask REST API for material prices
 │
-├── data/
+├── calculations/
+│   ├── quantity_calculations.py
+│   │   └── Residential quantity calculation functions
+│   ├── cost_calculations.py
+│   │   └── Material cost calculation functions
+│   └── material_api.py
+│       └── Client used to communicate with the REST API
 │
 ├── database/
+│   └── database.py
+│       └── SQLite database creation, storage and retrieval
+│
+├── data/
+│   └── buildquant.db
+│       └── Local SQLite project database
 │
 ├── reports/
+│   └── generate_report.py
+│       └── PDF report generation
 │
 ├── tests/
+│   ├── README.md
+│   │   └── Testing documentation
+│   ├── test_input_validation.py
+│   │   └── Input validation tests
 │   └── test_quantity_calculations.py
+│       └── Quantity calculation tests
 │
 ├── validation/
+│   └── input_validation.py
+│       └── Project input validation logic
 │
 ├── app.py
-├── README.md
+│   └── Main Streamlit application
+│
 ├── requirements.txt
+│   └── Python project dependencies
+│
 └── .gitignore
-```
+    └── Files and folders excluded from Git
+
+> The SQLite database and generated reports are ignored by Git according to `.gitignore`.
 
 ---
 
-# 📅 Development Progress
+# 🚀 Installation
 
-## Day 1 — Project Setup
-
-The first day focused on establishing the foundation of the BuildQuant project.
-
-### Completed
-
-* Created the BuildQuant project structure.
-* Created the Python virtual environment.
-* Installed Streamlit.
-* Created the initial Streamlit application.
-* Created the README documentation.
-* Created `requirements.txt`.
-* Added `.gitignore`.
-* Initialised Git.
-* Created the first Git commit.
-
-### Initial Application
-
-The first version of BuildQuant displayed a basic Streamlit interface containing the project name and description.
-
----
-
-# 📅 Day 2 — Dwelling Input GUI
-
-Day 2 focused on creating the **data collection layer** of BuildQuant.
-
-The application was changed from a basic welcome screen into an input form where the user can enter information about a proposed dwelling.
-
-### Project Information
-
-The user can enter:
-
-* Project name
-* Project number
-* Location
-* Building type
-
-### Building Dimensions
-
-The user can enter:
-
-* Length in metres
-* Width in metres
-* Wall height in metres
-
-### Openings
-
-The user can enter:
-
-* Number of doors
-* Number of windows
-
-### Current Data Flow
-
-```text
-User
-  ↓
-BuildQuant GUI
-  ↓
-Dwelling Information
-  ↓
-Project Summary
-```
-
-This establishes the first stage of the data engineering process: **data collection**.
-
----
-
-# 📅 Day 3 — Quantity Calculation Engine
-
-Day 3 introduced a separate calculation module so that calculation logic does not have to be placed directly inside the GUI.
-
-The calculation functions are stored in:
-
-```text
-calculations/quantity_calculations.py
-```
-
-### Calculations implemented
-
-#### Floor Area
-
-```text
-Length × Width
-```
-
-Example:
-
-```text
-10m × 8m = 80m²
-```
-
-#### Building Perimeter
-
-```text
-2 × (Length + Width)
-```
-
-Example:
-
-```text
-2 × (10 + 8) = 36m
-```
-
-#### Gross Wall Area
-
-```text
-Perimeter × Wall Height
-```
-
-Example:
-
-```text
-36m × 2.7m = 97.2m²
-```
-
-#### Opening Area
-
-The same function can be used to calculate door or window opening areas.
-
-```text
-Width × Height × Quantity
-```
-
-Example for six doors:
-
-```text
-0.9m × 2.1m × 6 = 11.34m²
-```
-
-Example for eight windows:
-
-```text
-1.2m × 1.2m × 8 = 11.52m²
-```
-
-#### Net Wall Area
-
-```text
-Gross Wall Area
-− Door Area
-− Window Area
-```
-
-Example:
-
-```text
-97.2 − 11.34 − 11.52
-= 74.34m²
-```
-
----
-
-# 🧪 Automated Testing
-
-Automated tests were introduced using **Pytest**.
-
-The tests are stored in:
-
-```text
-tests/test_quantity_calculations.py
-```
-
-The tests check whether the calculation functions return the expected results.
-
-Current tests include:
-
-* Floor area
-* Perimeter
-* Gross wall area
-* Door opening area
-* Window opening area
-* Net wall area
-
-Tests can be run using:
+## 1. Clone the repository
 
 ```bash
-pytest
+git clone <your-gitlab-repository-url>
+```
+
+Then enter the project directory:
+
+```bash
+cd BuildQuant
+```
+
+## 2. Create a virtual environment
+
+Windows:
+
+```bash
+python -m venv .venv
+```
+
+Activate it:
+
+```bash
+.venv\Scripts\activate
+```
+
+Linux/macOS:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+## 3. Install dependencies
+
+```bash
+pip install -r requirements.txt
 ```
 
 ---
 
-# 📅 Day 4 — GUI and Calculation Integration
+# ▶️ Running BuildQuant
 
-Day 4 connected the calculation engine to the Streamlit GUI.
+BuildQuant uses two processes:
 
-The application can now take information entered by the user and pass it to the calculation functions.
+### Terminal 1 — Start the Material API
 
-### Current process
-
-```text
-User enters dwelling data
-          ↓
-      BuildQuant GUI
-          ↓
-Quantity calculation functions
-          ↓
-     Calculated quantities
-          ↓
-      GUI displays results
+```bash
+python api/material_api.py
 ```
 
-The application now displays:
-
-* Floor area
-* Building perimeter
-* Gross wall area
-* Door opening area
-* Window opening area
-* Net wall area
-
-### Example Output
-
-For a dwelling with:
+The API runs on:
 
 ```text
-Length: 10m
-Width: 8m
-Wall Height: 2.7m
-Doors: 6
-Windows: 8
+http://localhost:5000
 ```
 
-BuildQuant produces approximately:
+### Terminal 2 — Start Streamlit
 
-```text
-Floor Area:          80.00m²
-Perimeter:           36.00m
-Gross Wall Area:     97.20m²
-Door Opening Area:   11.34m²
-Window Opening Area: 11.52m²
-Net Wall Area:       74.34m²
+```bash
+streamlit run app.py
 ```
+
+The Streamlit application will open in your browser.
 
 ---
 
-# 📅 Day 5 — Material Quantities and Waste
+# 🔗 Systems Integration
 
-Day 5 expanded BuildQuant beyond basic building measurements.
-
-The system now supports simplified material quantity calculations with waste allowances.
-
-## Floor Tiles
-
-A 10% waste allowance is applied to the calculated floor area.
-
-```text
-Floor Area × 1.10
-```
-
-Example:
-
-```text
-80m² × 1.10 = 88m²
-```
-
-Therefore:
-
-```text
-Estimated Floor Tile Quantity = 88m²
-```
-
-## Paint Area
-
-The net wall area is used as the preliminary paint area.
-
-A 5% allowance is currently applied.
-
-```text
-Net Wall Area × 1.05
-```
-
-Example:
-
-```text
-74.34m² × 1.05
-= 78.06m²
-```
-
-Therefore:
-
-```text
-Estimated Paint Area = 78.06m²
-```
-
----
-
-# 📊 Current BuildQuant Data Pipeline
-
-At the end of Day 5, the project has the beginning of a basic data transformation pipeline:
-
-```text
-                 RAW DATA
-                    │
-                    ▼
-            ┌──────────────┐
-            │  User Input  │
-            │              │
-            │ Length       │
-            │ Width        │
-            │ Height       │
-            │ Doors        │
-            │ Windows      │
-            └──────┬───────┘
-                   │
-                   ▼
-            ┌──────────────┐
-            │ Validation   │
-            └──────┬───────┘
-                   │
-                   ▼
-            ┌──────────────┐
-            │Transformation│
-            │              │
-            │ Areas        │
-            │ Perimeter    │
-            │ Openings     │
-            │ Waste        │
-            └──────┬───────┘
-                   │
-                   ▼
-            ┌──────────────┐
-            │   Quantity   │
-            │    Output    │
-            └──────────────┘
-```
-
-The database and more advanced data storage components will be implemented in later development stages.
-
----
-
-# 🏠 Current Example Project
-
-The current development example is:
-
-**Project:** Smith Residence
-
-**Project Number:** PRJ-2026-001
-
-**Location:** Cape Town
-
-**Building Type:** Single-storey dwelling
-
-### Dimensions
-
-```text
-Length:       10m
-Width:         8m
-Wall Height:  2.7m
-```
-
-### Openings
-
-```text
-Doors:    6
-Windows:  8
-```
-
-### Preliminary Quantities
-
-| Quantity                  | Result | Unit |
-| ------------------------- | -----: | ---- |
-| Floor Area                |  80.00 | m²   |
-| Perimeter                 |  36.00 | m    |
-| Gross Wall Area           |  97.20 | m²   |
-| Door Opening Area         |  11.34 | m²   |
-| Window Opening Area       |  11.52 | m²   |
-| Net Wall Area             |  74.34 | m²   |
-| Floor Tiles + 10% Waste   |  88.00 | m²   |
-| Paint Area + 5% Allowance |  78.06 | m²   |
-
----
-
-# 🔗 Planned Systems Integration
-
-A simple **Material Price REST API** will be added in a later stage of development.# BuildQuant
-
-## Residential Quantity Estimation & Data Engineering System
-
-BuildQuant is a beginner-friendly data engineering project designed
-to assist with preliminary quantity estimation for proposed residential
-dwellings.
-
-The system collects building information, validates the data,
-calculates construction quantities, stores the results, and generates
-a quantity estimation report.
-
-## Project Goal
-
-The goal of BuildQuant is to demonstrate how data engineering can be
-applied to a construction and quantity surveying problem.
-
-## Planned Technologies
-
-- Python
-- Streamlit
-- SQLite
-- Pandas# BuildQuant
-
-## Residential Quantity Estimation & Data Engineering System
-
-BuildQuant is a beginner-friendly data engineering project designed
-to assist with preliminary quantity estimation for proposed residential
-dwellings.
-
-The system collects building information, validates the data,
-calculates construction quantities, stores the results, and generates
-a quantity estimation report.
-
-## Project Goal
-
-The goal of BuildQuant is to demonstrate how data engineering can be
-applied to a construction and quantity surveying problem.
-
-## Planned Technologies
-
-- Python
-- Streamlit
-- SQLite
-- Pandas
-- SQL
-- ReportLab
-- Pytest
-- Git
-
-## Project Status
-
-Day 1 - Project setup and initial GUI.
-- SQL
-- ReportLab
-- Pytest
-- Git
-
-## Project Status
-
-Day 1 - Project setup and initial GUI.
-
-BuildQuant will request material rates from a separate service.
+The project intentionally uses a simple REST integration rather than adding unnecessary infrastructure.
 
 ```text
 BuildQuant
     │
-    │ HTTP Request# BuildQuant
-
-## Residential Quantity Estimation & Data Engineering System
-
-BuildQuant is a beginner-friendly data engineering project designed
-to assist with preliminary quantity estimation for proposed residential
-dwellings.
-
-The system collects building information, validates the data,
-calculates construction quantities, stores the results, and generates
-a quantity estimation report.
-
-## Project Goal
-
-The goal of BuildQuant is to demonstrate how data engineering can be
-applied to a construction and quantity surveying problem.
-
-## Planned Technologies
-
-- Python
-- Streamlit
-- SQLite
-- Pandas# BuildQuant
-
-## Residential Quantity Estimation & Data Engineering System
-
-BuildQuant is a beginner-friendly data engineering project designed
-to assist with preliminary quantity estimation for proposed residential
-dwellings.
-
-The system collects building information, validates the data,
-calculates construction quantities, stores the results, and generates
-a quantity estimation report.
-
-## Project Goal
-
-The goal of BuildQuant is to demonstrate how data engineering can be
-applied to a construction and quantity surveying problem.
-
-## Planned Technologies
-
-- Python
-- Streamlit
-- SQLite
-- Pandas
-- SQL
-- ReportLab
-- Pytest
-- Git
-
-## Project Status
-
-Day 1 - Project setup and initial GUI.
-- SQL
-- ReportLab
-- Pytest
-- Git
-
-## Project Status
-
-Day 1 - Project setup and initial GUI.
+    │ GET /materials/tiles
     ▼
 Material Price API
     │
-    │ JSON Response
+    │ JSON
+    ▼
+{
+    "material": "tiles",
+    "unit": "m2",
+    "rate": 350
+}
+    │
     ▼
 BuildQuant
     │
     ▼
-Quantity × Material Rate
+Quantity × Rate
     │
     ▼
-Estimated Cost
+Material Cost
 ```
 
-This will demonstrate a basic **Systems Integration** concept using:
+This demonstrates:
 
-* REST
-* HTTP
-* JSON
-* API communication
-
-The integration will intentionally remain simple so that the main focus stays on the Data Engineering project.
+- HTTP requests
+- REST endpoints
+- JSON
+- API consumption
+- Service integration
+- Error handling
 
 ---
 
-# 🚧 Current Limitations
+# 🐛 Bugs Encountered and Solutions
 
-BuildQuant currently uses simplified assumptions.
+## 1. Dashboard Column Mismatch Crash
 
-For example:
+### Bug Description
 
-* The dwelling is assumed to have a rectangular footprint.
-* Standard door dimensions are currently used.
-* Standard window dimensions are currently used.
-* The current wall calculation is simplified.
-* Roof, foundation and structural quantities are not yet included.
-* Material rates are not yet integrated.
-* The current calculations are not intended to replace professional Quantity Surveying measurement.
+The application crashed with a `ValueError` indicating that a specific number of columns were passed, for example:
 
-These limitations will be documented and addressed where appropriate in future versions.
+```text
+16 columns passed, passed data had 23 columns
+```
+
+when rendering the project DataFrame on the Dashboard or Analytics pages.
+
+### Root Cause
+
+The database schema and calculation engine were updated to include additional fields such as:
+
+- Material rates
+- Tile quantities
+- Paint quantities
+- Individual material costs
+- Total cost
+
+This increased the returned project data to **23 columns**.
+
+However, the hardcoded:
+
+```python
+columns = [...]
+```
+
+lists inside the Streamlit Dashboard and Analytics views still expected the old 16-column database layout.
+
+### Solution
+
+Updated the explicit column-name lists in both pages so they match the exact 23-column schema returned by:
+
+```python
+get_projects()
+```
+
+This restored correct DataFrame construction and prevented the mismatch crash.
+
+---
+
+## 2. Button Control Flow & Indentation Bug in New Project Handler
+
+### Bug Description
+
+Clicking the:
+
+```text
+🧮 Calculate Quantities
+```
+
+button sometimes bypassed the core calculation logic or failed to trigger input validation correctly.
+
+### Root Cause
+
+The input-validation blocks were incorrectly indented underneath the Streamlit button handler.
+
+This caused scoping/control-flow problems and premature exits.
+
+### Solution
+
+The New Project handler was restructured so that the operations execute sequentially:
+
+```text
+Button pressed
+      ↓
+Input validation
+      ↓
+Quantity calculations
+      ↓
+REST API calls
+      ↓
+Cost calculations
+      ↓
+SQLite persistence
+      ↓
+Session state update
+      ↓
+Success message
+```
+
+This ensured the complete workflow runs only when the Calculate button is pressed.
+
+---
+
+## 3. Missing UI Disclaimers on Quantities & Cost Estimate Pages
+
+### Bug Description
+
+The professional educational disclaimer was already included in the PDF export and Reports page, but it was missing from the interactive:
+
+- `📐 Quantities`
+- `💰 Cost Estimate`
+
+pages.
+
+### Root Cause
+
+The warning UI components had not been added to those page layouts.
+
+### Solution
+
+Added prominent `st.warning()` callouts to both pages explaining that:
+
+> BuildQuant is an educational prototype and does not replace professional quantity surveying or formal Bills of Quantities.
+
+This makes the limitation visible throughout the application rather than only inside generated reports.
+
+---
+
+# ⚠️ Limitations
+
+BuildQuant is deliberately a simplified educational prototype.
+
+Current limitations include:
+
+- Simplified quantity calculation rules
+- Fixed door dimensions
+- Fixed window dimensions
+- Simplified waste percentages
+- Limited material catalogue
+- Prototype material rates
+- Local SQLite storage
+- No user authentication
+- No multi-user deployment
+- No professional QS measurement rules
+- No formal BoQ generation
+- No live commercial material-price service
+- No project-level permissions
 
 ---
 
 # 🔮 Future Improvements
 
-Potential future features include:
+Possible future development includes:
 
-* SQLite database
-* Multiple project management
-* Material rate database
-* REST API integration
-* Cost estimation
-* Quantity dashboard
-* Charts and analytics
-* PDF report generation
-* Bill of Quantities export
-* More detailed construction measurements
-* Floor-plan upload
-* Automated measurement extraction
+- More construction material categories
+- Configurable door/window dimensions
+- More detailed quantity take-offs
+- Professional BoQ structure
+- User authentication
+- Cloud database
+- Live material pricing
+- Supplier integration
+- Advanced project filtering
+- Export to Excel
+- More advanced data visualisation
+- Automated testing for the API
+- Deployment to a cloud platform
+- Role-based access
+- Construction project forecasting
+
+---
+
+# 🎓 Educational Purpose
+
+BuildQuant was developed as a practical way to connect software development and data engineering concepts with a construction-related domain.
+
+It demonstrates how knowledge from:
+
+- Construction
+- Quantity surveying concepts
+- Python
+- Databases
+- REST APIs
+- Data analysis
+- Software engineering
+- Testing
+- Reporting
+
+can be combined into a single application.
 
 ---
 
 # 📌 Project Status
 
-**Current stage:** Day 5 — Quantity calculation and material estimation
+**Status: Functional educational prototype**
 
-### Completed
+The current version includes:
 
-* [x] Project setup
-* [x] Streamlit GUI
-* [x] Dwelling input form
-* [x] Quantity calculation engine
-* [x] Automated calculation tests
-* [x] GUI/calculation integration
-* [x] Basic material quantities
-* [x] Waste allowances
-
-### Upcoming
-
-* [ ] Input validation
-* [ ] SQLite database
-* [ ] SQL queries
-* [ ] Data processing with Pandas
-* [ ] Dashboard
-* [ ] Cost estimation
-* [ ] Material Price REST API
-* [ ] Systems Integration
-* [ ] PDF report
-* [ ] Final testing
-* [ ] Final documentation
+- Streamlit interface
+- Multi-page navigation
+- Quantity calculations
+- Input validation
+- SQLite persistence
+- Historical cost storage
+- Flask REST API
+- JSON data exchange
+- API error handling
+- Dashboard
+- Analytics
+- Cost estimation
+- PDF reporting
+- Automated calculation tests
 
 ---
 
-# 👩‍💻 Development Approach
+# 👩🏽‍💻 Author
 
-BuildQuant is being developed incrementally.
+**Joélle November**
 
-Each development stage focuses on a small feature that is tested before moving to the next stage.
+WeThinkCode_ student interested in:
 
-The project uses Git version control to maintain a history of development and demonstrate continuous progress.
+- Software Development
+- Data Engineering
+- Systems Integration
+- Construction Technology
+- Data-driven solutions
 
-```
+---
+
+## 📄 Disclaimer
+
+BuildQuant is an educational software prototype created for learning and demonstration purposes. It is not a professional quantity-surveying, engineering, estimating, or construction-management system. Calculations and rates should not be used as the basis for actual construction procurement, tendering, contracts, or professional Bills of Quantities.
