@@ -1,5 +1,8 @@
 # 🏗️ BuildQuant
 
+## VERIFICATION CODE:
+WTC-XQYUTEJA
+
 ## Residential Quantity Estimation & Data Engineering System
 
 BuildQuant is a Python-based educational prototype that combines **construction quantity estimation, data engineering, database storage, REST API integration, analytics, and PDF reporting** into one Streamlit application.
